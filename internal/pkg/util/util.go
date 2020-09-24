@@ -19,7 +19,6 @@ func FileExist(file string) bool {
 
 //LoadConfig ...
 func LoadConfig() (*config.Config, error) {
-	// var cfg *config.Config
 	for _, file := range constant.ConfigLocations() {
 		if FileExist(file) {
 			c, e := config.ParseFile(file)
