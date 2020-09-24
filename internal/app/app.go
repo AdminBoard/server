@@ -71,22 +71,22 @@ func loadRoutes() error {
 		return e
 	}
 	for _, rsRoute := range rsRoutes {
-		if e := loadRoute(svr.Database(), rsRoute.Int(`id`), rsRoute.String(`method`), rsRoute.String(`path`)); e != nil {
+		route, e := loadRoute(svr.Database(), rsRoute.Int(`id`), rsRoute.String(`method`), rsRoute.String(`path`))
+		if e != nil {
 			return e
 		}
+		svr.SetRoute(route)
+
 	}
 	return nil
 }
 
-func loadRoute(cn *db.Connection, id int, method, path string) error {
+func loadRoute(cn *db.Connection, id int, method, path string) (*api.Route, error) {
 	prefix := cfg.GetOr(`Database.prefix`, `admin_`)
-	route, e := svr.NewRoute(method, path)
-	if e != nil {
-		return e
-	}
+	route := api.NewRoute(method, path)
 	rsActions, e := cn.Select(`SELECT * FROM `+prefix+`action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`, id)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	for _, rsAction := range rsActions {
 		if query := rsAction.String(`query`); query != `` {
@@ -94,5 +94,6 @@ func loadRoute(cn *db.Connection, id int, method, path string) error {
 		}
 		//TODO if not query action
 	}
-	return nil
+
+	return route, nil
 }
