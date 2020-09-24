@@ -1,6 +1,9 @@
 [Server]
 port = 8100
 
+//for custom log file uncomment this line
+//log_file = logs/adminboard.log
+
 [Database]
 hostname = localhost
 port = 3306
