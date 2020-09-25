@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/eqto/go-db"
+	"github.com/eqto/go-json"
 
 	log "github.com/eqto/go-logger"
 
@@ -78,6 +79,9 @@ func loadRoutes() error {
 		svr.SetRoute(route)
 
 	}
+
+	svr.SetRoute(api.NewFuncRoute(`/api`, apiFunc))
+
 	return nil
 }
 
@@ -97,3 +101,40 @@ func loadRoute(cn *db.Connection, id int, method, path string) (*api.Route, erro
 
 	return route, nil
 }
+
+func apiFunc(ctx api.Context) (interface{}, error) {
+	body := ctx.Request().JSONBody()
+	jsResp := json.Object{}
+	if page := body.GetString(`page`); page != `` {
+		rs, e := ctx.Tx().Get(getQuery(queryPage), page)
+		if e != nil {
+			return nil, e
+		}
+		jsResp.Put(`id`, rs.Int(`id`)).Put(`title`, rs.String(`title`))
+		rsContent, e := ctx.Tx().Select(getQuery(queryPageContent), rs.Int(`id`))
+		content := [][]db.Resultset{}
+		var row []db.Resultset
+		for _, rs := range rsContent {
+			if rs.Int(`sequence`)%100 == 1 {
+				if len(row) > 0 {
+					content = append(content, row)
+				}
+				row = []db.Resultset{rs}
+			} else {
+				row = append(row, rs)
+			}
+		}
+		if len(row) > 0 {
+			content = append(content, row)
+		}
+
+		jsResp.Put(`content`, content)
+		return jsResp, nil
+	}
+	return nil, nil
+}
+
+// func apiPage(ctx api.Context) (interface{}, error) {
+
+// 	return nil, nil
+// }
