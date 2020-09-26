@@ -1,40 +1,44 @@
 package app
 
 import (
+	"sort"
+
+	"github.com/adminboard/server/internal/pkg/query"
 	"github.com/eqto/api-server"
-	"github.com/eqto/go-db"
 	"github.com/eqto/go-json"
 )
 
 func apiMenu(ctx api.Context) (interface{}, error) {
-	rs, e := ctx.Tx().Get(getQuery(queryPage), ctx.Request().JSONBody().GetString(`path`))
+	roleID := ctx.Session().GetInt(`role_id`)
+
+	rsMenu, e := ctx.Tx().Select(query.Get(query.Menu), roleID)
 	if e != nil {
 		return nil, e
 	}
-	if rs != nil {
-		jsResp := json.Object{}
-		jsResp.Put(`id`, rs.Int(`id`)).Put(`title`, rs.String(`title`))
-		rsContent, e := ctx.Tx().Select(getQuery(queryPageContent), rs.Int(`id`))
-		if e != nil {
-			return nil, e
+	menuMap := make(map[int]json.Object)
+
+	for _, rs := range rsMenu {
+		js := json.Object{
+			`id`:          rs.Int(`id`),
+			`kind`:        rs.String(`kind`),
+			`caption`:     rs.String(`caption`),
+			`description`: rs.String(`description`),
+			`sequence`:    rs.String(`sequence`),
 		}
-		content := [][]db.Resultset{}
-		var row []db.Resultset
-		for _, rs := range rsContent {
-			if rs.Int(`sequence`)%100 == 1 {
-				if len(row) > 0 {
-					content = append(content, row)
-				}
-				row = []db.Resultset{rs}
-			} else {
-				row = append(row, rs)
-			}
+		if parentID := rs.Int(`parent_id`); parentID == 0 {
+			menuMap[js.GetInt(`id`)] = js
+		} else {
+			submenu := menuMap[parentID].GetArray(`submenu`)
+			submenu = append(submenu, js)
+			menuMap[parentID].Put(`submenu`, submenu)
 		}
-		if len(row) > 0 {
-			content = append(content, row)
-		}
-		jsResp.Put(`content`, content)
-		return jsResp, nil
 	}
-	return nil, nil
+	menu := []json.Object{}
+	for _, m := range menuMap {
+		menu = append(menu, m)
+	}
+	sort.SliceStable(menu, func(i, j int) bool {
+		return menu[i].GetInt(`sequence`) < menu[j].GetInt(`sequence`)
+	})
+	return menu, nil
 }

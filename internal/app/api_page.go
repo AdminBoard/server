@@ -1,20 +1,21 @@
 package app
 
 import (
+	"github.com/adminboard/server/internal/pkg/query"
 	"github.com/eqto/api-server"
 	"github.com/eqto/go-db"
 	"github.com/eqto/go-json"
 )
 
 func apiPage(ctx api.Context) (interface{}, error) {
-	rs, e := ctx.Tx().Get(getQuery(queryPage), ctx.Request().JSONBody().GetString(`path`))
+	rs, e := ctx.Tx().Get(query.Get(query.Page), ctx.Request().JSONBody().GetString(`path`))
 	if e != nil {
 		return nil, e
 	}
 	if rs != nil {
 		jsResp := json.Object{}
 		jsResp.Put(`id`, rs.Int(`id`)).Put(`title`, rs.String(`title`))
-		rsContent, e := ctx.Tx().Select(getQuery(queryPageContent), rs.Int(`id`))
+		rsContent, e := ctx.Tx().Select(query.Get(query.PageContent), rs.Int(`id`))
 		if e != nil {
 			return nil, e
 		}
