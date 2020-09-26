@@ -4,9 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/eqto/go-db"
-	"github.com/eqto/go-json"
-
 	log "github.com/eqto/go-logger"
 
 	"github.com/eqto/api-server"
@@ -61,80 +58,3 @@ func Run() error {
 	}
 	return svr.Serve(cfg.GetIntOr(`Server.port`, 8100))
 }
-
-func loadRoutes() error {
-	prefix := cfg.GetOr(`Database.prefix`, `admin_`)
-	// dashboardPrefix := cfg.Get(`Dashboard.prefix_url`)
-	// apiPrefix := cfg.Get(`API.prefix_url`)
-
-	rsRoutes, e := svr.Database().Select(`SELECT * FROM ` + prefix + `route ORDER BY path`)
-	if e != nil {
-		return e
-	}
-	for _, rsRoute := range rsRoutes {
-		route, e := loadRoute(svr.Database(), rsRoute.Int(`id`), rsRoute.String(`method`), rsRoute.String(`path`))
-		if e != nil {
-			return e
-		}
-		svr.SetRoute(route)
-
-	}
-
-	svr.SetRoute(api.NewFuncRoute(`/api`, apiFunc))
-
-	return nil
-}
-
-func loadRoute(cn *db.Connection, id int, method, path string) (*api.Route, error) {
-	prefix := cfg.GetOr(`Database.prefix`, `admin_`)
-	route := api.NewRoute(method, path)
-	rsActions, e := cn.Select(`SELECT * FROM `+prefix+`action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`, id)
-	if e != nil {
-		return nil, e
-	}
-	for _, rsAction := range rsActions {
-		if query := rsAction.String(`query`); query != `` {
-			route.AddQueryAction(query, rsAction.String(`params`), rsAction.String(`property`))
-		}
-		//TODO if not query action
-	}
-
-	return route, nil
-}
-
-func apiFunc(ctx api.Context) (interface{}, error) {
-	body := ctx.Request().JSONBody()
-	jsResp := json.Object{}
-	if page := body.GetString(`page`); page != `` {
-		rs, e := ctx.Tx().Get(getQuery(queryPage), page)
-		if e != nil {
-			return nil, e
-		}
-		jsResp.Put(`id`, rs.Int(`id`)).Put(`title`, rs.String(`title`))
-		rsContent, e := ctx.Tx().Select(getQuery(queryPageContent), rs.Int(`id`))
-		content := [][]db.Resultset{}
-		var row []db.Resultset
-		for _, rs := range rsContent {
-			if rs.Int(`sequence`)%100 == 1 {
-				if len(row) > 0 {
-					content = append(content, row)
-				}
-				row = []db.Resultset{rs}
-			} else {
-				row = append(row, rs)
-			}
-		}
-		if len(row) > 0 {
-			content = append(content, row)
-		}
-
-		jsResp.Put(`content`, content)
-		return jsResp, nil
-	}
-	return nil, nil
-}
-
-// func apiPage(ctx api.Context) (interface{}, error) {
-
-// 	return nil, nil
-// }
