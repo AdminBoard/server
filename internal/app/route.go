@@ -15,19 +15,19 @@ func loadRoutes() error {
 		return e
 	}
 	for _, rsRoute := range rsRoutes {
-		route, e := loadRoute(svr.Database(), rsRoute.Int(`id`), rsRoute.String(`method`), rsRoute.String(`path`))
+		route, e := loadRoute(svr.Database(), rsRoute.Int(`id`))
 		if e != nil {
 			return e
 		}
-		svr.SetRoute(route)
+		svr.SetRoute(rsRoute.String(`method`), rsRoute.String(`path`), route)
 
 	}
 
 	return nil
 }
 
-func loadRoute(cn *db.Connection, id int, method, path string) (*api.Route, error) {
-	route := api.NewRoute(method, path)
+func loadRoute(cn *db.Connection, id int) (*api.Route, error) {
+	route := api.NewRoute()
 	rsActions, e := cn.Select(query.Get(query.Action), id)
 	if e != nil {
 		return nil, e

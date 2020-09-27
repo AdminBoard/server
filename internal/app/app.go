@@ -46,11 +46,15 @@ func Init() error {
 	if e := loadRoutes(); e != nil {
 		return e
 	}
-	svr.SetRoute(api.NewFuncRoute(`/api`, apiRoute))
+	route := api.NewFuncRoute(apiRoute)
+	svr.SetRoute(api.MethodPost, `/api`, route)
+	svr.SetRoute(api.MethodGet, `/api`, route)
 
-	publicRoute := api.NewFuncRoute(`/api/public`, apiPublic)
+	publicRoute := api.NewFuncRoute(apiPublic)
 	publicRoute.SetSecure(false)
-	svr.SetRoute(publicRoute)
+	svr.SetRoute(api.MethodPost, `/api/public`, publicRoute)
+	svr.SetRoute(api.MethodGet, `/api/public`, publicRoute)
+
 	svr.AddAuthMiddleware(authMiddleware)
 	return nil
 }
