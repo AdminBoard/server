@@ -7,8 +7,15 @@ import (
 )
 
 const (
-	Route = `SELECT * FROM {prefix}route ORDER BY path`
-	Page  = `SELECT p.id, p.title 
+	Route = `SELECT r.*
+	FROM {prefix}route r
+	LEFT JOIN {prefix}page p ON r.id = p.route_id
+	WHERE p.route_id IS NULL ORDER BY path`
+
+	// Route = `SELECT *
+	// FROM {prefix}route ORDER BY path`
+
+	Page = `SELECT p.id, p.title 
 	FROM {prefix}route r 
 	INNER JOIN {prefix}page p ON r.id = p.route_id 
 	WHERE r.method = 'GET' AND r.path = ?`
