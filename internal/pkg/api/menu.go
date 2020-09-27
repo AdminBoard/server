@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"sort"
@@ -8,7 +8,8 @@ import (
 	"github.com/eqto/go-json"
 )
 
-func apiMenu(ctx api.Context) (interface{}, error) {
+//Menu ...
+func Menu(ctx api.Context) (interface{}, error) {
 	roleID := ctx.Session().GetInt(`role_id`)
 
 	rsMenu, e := ctx.Tx().Select(query.Get(query.Menu), roleID)
@@ -22,6 +23,7 @@ func apiMenu(ctx api.Context) (interface{}, error) {
 			`id`:          rs.Int(`id`),
 			`kind`:        rs.String(`kind`),
 			`caption`:     rs.String(`caption`),
+			`path`:        rs.String(`path`),
 			`description`: rs.String(`description`),
 			`sequence`:    rs.String(`sequence`),
 		}

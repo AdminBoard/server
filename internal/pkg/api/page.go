@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"github.com/adminboard/server/internal/pkg/query"
@@ -7,7 +7,8 @@ import (
 	"github.com/eqto/go-json"
 )
 
-func apiPage(ctx api.Context) (interface{}, error) {
+//Page ...
+func Page(ctx api.Context) (interface{}, error) {
 	rs, e := ctx.Tx().Get(query.Get(query.Page), ctx.Request().JSONBody().GetString(`path`))
 	if e != nil {
 		return nil, e

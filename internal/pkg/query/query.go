@@ -7,18 +7,24 @@ import (
 )
 
 const (
-	Page = `SELECT p.id, p.title 
+	Route = `SELECT * FROM {prefix}route ORDER BY path`
+	Page  = `SELECT p.id, p.title 
 	FROM {prefix}route r 
 	INNER JOIN {prefix}page p ON r.id = p.route_id 
 	WHERE r.method = 'GET' AND r.path = ?`
+
+	Action = `SELECT * FROM {prefix}action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`
 
 	PageContent = `SELECT pc.id, w.name, pc.sequence 
 	FROM {prefix}page_content pc 
 	INNER JOIN {prefix}widget w ON pc.widget_id = w.id WHERE pc.page_id = ? AND pc.sequence > 0 
 	ORDER BY pc.sequence`
 
-	Menu = `SELECT m.id, m.parent_id, m.kind, m.caption, m.description, m.sequence 
-	FROM {prefix}menu m INNER JOIN {prefix}menu_role mr ON m.id = mr.menu_id 
+	Menu = `SELECT m.id, m.parent_id, m.kind, r.path, m.caption, m.description, m.sequence 
+	FROM {prefix}menu m 
+	INNER JOIN {prefix}menu_role mr ON m.id = mr.menu_id 
+	LEFT JOIN {prefix}page p ON m.page_id = p.id
+	LEFT JOIN {prefix}route r ON p.route_id = r.id
 	WHERE m.sequence > 0 AND mr.role_id = ?
 	ORDER BY m.parent_id, m.sequence`
 )

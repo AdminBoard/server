@@ -14,8 +14,13 @@ var (
 	svr *api.Server
 )
 
-//Run ...
-func Run() error {
+//APIServer ..
+func APIServer() *api.Server {
+	return svr
+}
+
+//Init init server before serving. This function used if you need modify server or any property before serving http. If you don't need modification just run Serve without Init
+func Init() error {
 	if e := config.Load(); e != nil {
 		return e
 	}
@@ -42,7 +47,20 @@ func Run() error {
 		return e
 	}
 	svr.SetRoute(api.NewFuncRoute(`/api`, apiRoute))
-	svr.AddAuthMiddleware(authMiddleware)
 
+	publicRoute := api.NewFuncRoute(`/api/public`, apiPublic)
+	publicRoute.SetSecure(false)
+	svr.SetRoute(publicRoute)
+	svr.AddAuthMiddleware(authMiddleware)
+	return nil
+}
+
+//Run run and wait until finish or error
+func Run() error {
+	if svr == nil {
+		if e := Init(); e != nil {
+			return e
+		}
+	}
 	return svr.Serve(config.GetIntOr(`Server.port`, 8100))
 }

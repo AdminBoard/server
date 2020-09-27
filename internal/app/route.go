@@ -1,17 +1,16 @@
 package app
 
 import (
-	"github.com/adminboard/server/internal/pkg/config"
+	"github.com/adminboard/server/internal/pkg/query"
 	"github.com/eqto/api-server"
 	"github.com/eqto/go-db"
 )
 
 func loadRoutes() error {
-	prefix := config.GetOr(`Database.prefix`, `admin_`)
 	// dashboardPrefix := cfg.Get(`Dashboard.prefix_url`)
 	// apiPrefix := cfg.Get(`API.prefix_url`)
 
-	rsRoutes, e := svr.Database().Select(`SELECT * FROM ` + prefix + `route ORDER BY path`)
+	rsRoutes, e := svr.Database().Select(query.Get(query.Route))
 	if e != nil {
 		return e
 	}
@@ -28,9 +27,8 @@ func loadRoutes() error {
 }
 
 func loadRoute(cn *db.Connection, id int, method, path string) (*api.Route, error) {
-	prefix := config.GetOr(`Database.prefix`, `admin_`)
 	route := api.NewRoute(method, path)
-	rsActions, e := cn.Select(`SELECT * FROM `+prefix+`action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`, id)
+	rsActions, e := cn.Select(query.Get(query.Action), id)
 	if e != nil {
 		return nil, e
 	}
