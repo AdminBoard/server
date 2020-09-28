@@ -18,27 +18,39 @@ func Page(ctx api.Context, path string) (interface{}, error) {
 	if rs != nil {
 		jsResp := json.Object{}
 		jsResp.Put(`id`, rs.Int(`id`)).Put(`title`, rs.String(`title`))
-		rsContent, e := ctx.Tx().Select(query.Get(query.PageContent), rs.Int(`id`))
+		rsWidgets, e := ctx.Tx().Select(query.Get(query.PageContent), rs.Int(`id`))
 		if e != nil {
 			return nil, e
 		}
-		content := [][]db.Resultset{}
-		var row []db.Resultset
-		for _, rs := range rsContent {
+		widgets := [][]json.Object{}
+		var row []json.Object
+		for _, rs := range rsWidgets {
 			if rs.Int(`sequence`)%100 == 1 {
 				if len(row) > 0 {
-					content = append(content, row)
+					widgets = append(widgets, row)
 				}
-				row = []db.Resultset{rs}
+				row = []json.Object{parseWidget(rs)}
 			} else {
-				row = append(row, rs)
+				row = append(row, parseWidget(rs))
 			}
 		}
 		if len(row) > 0 {
-			content = append(content, row)
+			widgets = append(widgets, row)
 		}
-		jsResp.Put(`content`, content)
+		jsResp.Put(`widgets`, widgets)
 		return jsResp, nil
 	}
 	return api.ResponseError(api.StatusNotFound, fmt.Errorf(`Page %s not found`, path))
+}
+
+func parseWidget(rs db.Resultset) json.Object {
+	js := json.Object{
+		`id`:          rs.Int(`id`),
+		`sequence`:    rs.Int(`sequence`),
+		`name`:        rs.String(`name`),
+		`data_source`: rs.String(`data_source`),
+	}
+	params, _ := json.ParseString(rs.String(`params`))
+	js.Put(`params`, params)
+	return js
 }
