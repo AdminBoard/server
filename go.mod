@@ -2,8 +2,10 @@ module github.com/adminboard/server
 
 go 1.15
 
+replace github.com/eqto/api-server => /home/tuxer/Projects/Tuxer/api-server
+
 require (
-	github.com/eqto/api-server v0.3.3-0.20200927155149-25ee99f37e6b
+	github.com/eqto/api-server v0.0.0-00010101000000-000000000000
 	github.com/eqto/config v0.1.1-0.20200924073109-08b16142ea0e
 	github.com/eqto/go-db v0.2.3-0.20200920164904-8525e6817f27
 	github.com/eqto/go-json v0.2.1

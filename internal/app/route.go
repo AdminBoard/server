@@ -7,9 +7,6 @@ import (
 )
 
 func loadRoutes() error {
-	// dashboardPrefix := cfg.Get(`Dashboard.prefix_url`)
-	// apiPrefix := cfg.Get(`API.prefix_url`)
-
 	rsRoutes, e := svr.Database().Select(query.Get(query.Route))
 	if e != nil {
 		return e

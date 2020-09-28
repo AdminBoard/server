@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/adminboard/server/internal/pkg/query"
 	"github.com/eqto/api-server"
 	"github.com/eqto/go-db"
@@ -8,8 +10,8 @@ import (
 )
 
 //Page ...
-func Page(ctx api.Context) (interface{}, error) {
-	rs, e := ctx.Tx().Get(query.Get(query.Page), ctx.Request().JSONBody().GetString(`path`))
+func Page(ctx api.Context, path string) (interface{}, error) {
+	rs, e := ctx.Tx().Get(query.Get(query.Page), path)
 	if e != nil {
 		return nil, e
 	}
@@ -38,5 +40,5 @@ func Page(ctx api.Context) (interface{}, error) {
 		jsResp.Put(`content`, content)
 		return jsResp, nil
 	}
-	return nil, nil
+	return api.ResponseError(api.StatusNotFound, fmt.Errorf(`Page %s not found`, path))
 }

@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/adminboard/server/internal/pkg/api"
 	apis "github.com/eqto/api-server"
@@ -9,11 +10,17 @@ import (
 )
 
 func apiRoute(ctx apis.Context) (interface{}, error) {
-	switch ctx.Request().URL().RawQuery {
+	command := ctx.Request().URL().RawQuery
+	subcommand := ``
+	if idx := strings.Index(command, `=`); idx >= 0 {
+		subcommand = command[idx+1:]
+		command = command[:idx]
+	}
+	switch command {
 	case `menu`:
 		return api.Menu(ctx)
 	case `page`:
-		return api.Page(ctx)
+		return api.Page(ctx, subcommand)
 	}
 	return apis.ResponseError(apis.StatusNotFound, errors.New(ctx.Request().URL().RawQuery))
 }
