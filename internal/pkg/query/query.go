@@ -12,6 +12,8 @@ const (
 	LEFT JOIN {prefix}page p ON r.id = p.route_id
 	WHERE p.route_id IS NULL ORDER BY path`
 
+	Proxy = `SELECT * FROM {prefix}proxy ORDER BY sequence WHERE sequence > 0`
+
 	Page = `SELECT p.id, p.title 
 	FROM {prefix}route r 
 	INNER JOIN {prefix}page p ON r.id = p.route_id 
