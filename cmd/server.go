@@ -2,21 +2,21 @@ package main
 
 import (
 	"github.com/adminboard/server/internal/app"
+	"github.com/eqto/command"
 	log "github.com/eqto/go-logger"
-	"github.com/eqto/go-service"
 )
 
 var (
-	svr *service.Service
+	svr *command.Service
 )
 
 func main() {
 	log.SetFile(app.DefaultLog)
-	switch service.Cmd() {
+	switch command.Cmd() {
 	case `start`:
-		service.StartService(`run`)
+		command.StartService(`run`)
 	case `stop`:
-		service.StopService()
+		command.StopService()
 	case `run`:
 		if e := app.Run(); e != nil {
 			log.E(e)
