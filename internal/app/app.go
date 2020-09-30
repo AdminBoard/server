@@ -55,6 +55,10 @@ func Init() error {
 	svr.SetRoute(api.MethodPost, `/api/public`, publicRoute)
 	svr.SetRoute(api.MethodGet, `/api/public`, publicRoute)
 
+	if e := loadProxies(); e != nil {
+		return e
+	}
+
 	svr.AddAuthMiddleware(authMiddleware)
 	return nil
 }

@@ -2,7 +2,7 @@ package app
 
 import "github.com/adminboard/server/internal/pkg/query"
 
-func loadProxy() error {
+func loadProxies() error {
 	proxies, e := svr.Database().Select(query.Get(query.Proxy))
 	if e != nil {
 		return e
