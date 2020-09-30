@@ -3,6 +3,8 @@ package config
 import (
 	"errors"
 
+	"github.com/eqto/command"
+
 	"github.com/adminboard/server/internal/pkg/constant"
 	"github.com/adminboard/server/internal/pkg/util"
 	"github.com/eqto/config"
@@ -12,6 +14,14 @@ var cfg *config.Config
 
 //Load ...
 func Load() error {
+	if file := command.Get(`config`); file != `` {
+		c, e := config.ParseFile(file)
+		if e != nil {
+			return e
+		}
+		cfg = c
+		return nil
+	}
 	for _, file := range constant.ConfigLocations() {
 		if util.FileExist(file) {
 			c, e := config.ParseFile(file)
