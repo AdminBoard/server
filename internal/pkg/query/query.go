@@ -12,6 +12,8 @@ const (
 	LEFT JOIN {prefix}page p ON r.id = p.route_id
 	WHERE p.route_id IS NULL ORDER BY path`
 
+	Action = `SELECT * FROM {prefix}action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`
+
 	Proxy = `SELECT * FROM {prefix}proxy WHERE sequence > 0 ORDER BY sequence`
 
 	Page = `SELECT p.id, p.title 
@@ -25,8 +27,6 @@ const (
 	LEFT JOIN {prefix}route r ON pw.data_route_id = r.id
 	WHERE pw.page_id = ? AND pw.sequence > 0 
 	ORDER BY pw.sequence`
-
-	Action = `SELECT * FROM {prefix}action WHERE route_id = ? AND sequence > 0 ORDER BY sequence`
 
 	Menu = `SELECT m.id, m.parent_id, m.kind, r.path, m.caption, m.description, m.sequence 
 	FROM {prefix}menu m 
