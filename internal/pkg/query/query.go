@@ -7,6 +7,13 @@ import (
 )
 
 const (
+	LoginUser          = `SELECT u.id, u.role_id, u.secret FROM {prefix}user u WHERE username = ? LIMIT 1`
+	LoginNewSession    = `INSERT INTO {prefix}session(user_id, data) VALUES(?, ?)`
+	LoginUpdateSession = `UPDATE {prefix}session SET session = ? WHERE id = ?`
+	Session            = `SELECT u.id, u.role_id 
+	FROM {prefix}session s 
+	INNER JOIN {prefix}user u ON s.user_id = u.id WHERE s.session = ? LIMIT 1`
+
 	Route = `SELECT r.*
 	FROM {prefix}route r
 	LEFT JOIN {prefix}page p ON r.id = p.route_id
