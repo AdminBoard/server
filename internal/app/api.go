@@ -83,7 +83,7 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 	case `session`:
 		if session := getSession(
 			ctx.Tx(),
-			ctx.Request().Header(),
+			ctx.Response().Header(),
 			ctx.Request().Header().Get(`Cookie`)); session != nil {
 			return session, nil
 		}
