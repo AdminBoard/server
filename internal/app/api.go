@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,7 +30,13 @@ func apiRoute(ctx apis.Context) (interface{}, error) {
 	case `menu`:
 		return api.Menu(ctx)
 	case `page`:
-		return api.Page(ctx, subcommand)
+		return api.PageByPath(ctx, subcommand)
+	case `page_id`:
+		id, e := strconv.Atoi(subcommand)
+		if e != nil {
+			return apis.ResponseError(apis.StatusNotFound, e)
+		}
+		return api.PageByID(ctx, id)
 	}
 	return apis.ResponseError(apis.StatusNotFound, errors.New(ctx.Request().URL().RawQuery))
 }

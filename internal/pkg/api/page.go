@@ -9,9 +9,8 @@ import (
 	"github.com/eqto/go-json"
 )
 
-//Page ...
-func Page(ctx api.Context, path string) (interface{}, error) {
-	rs, e := ctx.Tx().Get(query.Get(query.Page), path)
+func page(ctx api.Context, q string, param interface{}) (interface{}, error) {
+	rs, e := ctx.Tx().Get(q, param)
 	if e != nil {
 		return nil, e
 	}
@@ -40,7 +39,17 @@ func Page(ctx api.Context, path string) (interface{}, error) {
 		jsResp.Put(`widgets`, widgets)
 		return jsResp, nil
 	}
-	return api.ResponseError(api.StatusNotFound, fmt.Errorf(`Page %s not found`, path))
+	return api.ResponseError(api.StatusNotFound, fmt.Errorf(`Page %v not found`, param))
+}
+
+//PageByID ..
+func PageByID(ctx api.Context, id int) (interface{}, error) {
+	return page(ctx, query.Get(query.PageByID), id)
+}
+
+//PageByPath ...
+func PageByPath(ctx api.Context, path string) (interface{}, error) {
+	return page(ctx, query.Get(query.PageByPath), path)
 }
 
 func parseWidget(rs db.Resultset) json.Object {

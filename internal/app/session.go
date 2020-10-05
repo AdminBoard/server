@@ -41,6 +41,6 @@ func setCookie(header api.Header, sessionID string) {
 	if sessionID == `` {
 		age = 0
 	}
-	cookie := fmt.Sprintf(`session_id=%s; Max-Age=%d; HttpOnly`, sessionID, age)
+	cookie := fmt.Sprintf(`session_id=%s; Max-Age=%d; Path=/; HttpOnly`, sessionID, age)
 	header.Add(`Set-Cookie`, cookie)
 }

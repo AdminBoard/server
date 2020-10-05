@@ -23,10 +23,12 @@ const (
 
 	Proxy = `SELECT * FROM {prefix}proxy WHERE sequence > 0 ORDER BY sequence`
 
-	Page = `SELECT p.id, p.title 
+	PageByPath = `SELECT p.id, p.title 
 	FROM {prefix}route r 
 	INNER JOIN {prefix}page p ON r.id = p.route_id 
 	WHERE r.method = 'GET' AND r.path = ?`
+
+	PageByID = `SELECT id, title FROM {prefix}page WHERE id = ?`
 
 	PageContent = `SELECT pw.id, pw.params, pw.sequence, w.name, r.path AS data_source 
 	FROM {prefix}page_widget pw 
