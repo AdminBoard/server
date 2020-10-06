@@ -54,12 +54,13 @@ func PageByPath(ctx api.Context, path string) (interface{}, error) {
 
 func parseWidget(rs db.Resultset) json.Object {
 	js := json.Object{
-		`id`:          rs.Int(`id`),
-		`sequence`:    rs.Int(`sequence`),
-		`name`:        rs.String(`name`),
-		`data_source`: rs.String(`data_source`),
+		`id`:       rs.Int(`id`),
+		`sequence`: rs.Int(`sequence`),
+		`name`:     rs.String(`name`),
 	}
-	params, _ := json.ParseString(rs.String(`params`))
-	js.Put(`params`, params)
+	if prop := rs.String(`properties`); prop != `` {
+		properties, _ := json.ParseString(prop)
+		js.Put(`properties`, properties)
+	}
 	return js
 }

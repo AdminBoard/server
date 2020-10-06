@@ -30,10 +30,9 @@ const (
 
 	PageByID = `SELECT id, title FROM {prefix}page WHERE id = ?`
 
-	PageContent = `SELECT pw.id, pw.params, pw.sequence, w.name, r.path AS data_source 
+	PageContent = `SELECT pw.id, pw.properties, pw.sequence, w.name 
 	FROM {prefix}page_widget pw 
 	INNER JOIN {prefix}widget w ON pw.widget_id = w.id 
-	LEFT JOIN {prefix}route r ON pw.data_route_id = r.id
 	WHERE pw.page_id = ? AND pw.sequence > 0 
 	ORDER BY pw.sequence`
 
