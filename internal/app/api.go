@@ -94,7 +94,7 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 			ctx.Request().Header().Get(`Cookie`)); session != nil {
 			return session, nil
 		}
-		return apis.ResponseError(apis.StatusUnauthorized, errors.New(`invalid session`))
+		return nil, nil
 	}
 	return apis.ResponseError(apis.StatusNotFound, errors.New(ctx.Request().URL().RawQuery))
 }
