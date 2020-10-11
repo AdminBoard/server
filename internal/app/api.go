@@ -81,7 +81,7 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 		sess := encodeIds(id, 40)
 		ctx.Tx().Exec(query.Get(query.LoginUpdateSession), sess, id)
 
-		cookie := fmt.Sprintf(`session_id=%s; Max-Age=%d; HttpOnly`, sess, 60*5)
+		cookie := fmt.Sprintf(`session_id=%s; Max-Age=%d; HttpOnly`, sess, 60*15)
 		ctx.Response().Header().Add(`Set-Cookie`, cookie)
 
 		return json.Object{
