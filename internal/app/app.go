@@ -11,9 +11,7 @@ import (
 )
 
 var (
-	svr         *api.Server
-	staticPath  string
-	staticProxy string
+	svr *api.Server
 )
 
 //APIServer ..
@@ -23,6 +21,9 @@ func APIServer() *api.Server {
 
 //Init init server before serving. This function used if you need modify server or any property before serving http. If you don't need modification just run Serve without Init
 func Init() error {
+	if svr != nil {
+		return nil
+	}
 	if e := config.Load(); e != nil {
 		return e
 	}
@@ -61,29 +62,10 @@ func Init() error {
 		return e
 	}
 
-	if staticProxy != `` {
-		svr.Proxy(`*`, staticProxy)
-	} else {
-		path := staticPath
-		if path == `` {
-			path = `public`
-		}
-		svr.FileRoute(`*`, path, `index.html`)
-	}
+	svr.FileRoute(`*`, `public`, `index.html`)
 
 	svr.AddAuthMiddleware(authMiddleware)
 	return nil
-}
-
-//Static ...
-func Static(path string) {
-	staticPath = path
-}
-
-//StaticProxy ...
-func StaticProxy(url string) {
-	staticProxy = url
-
 }
 
 //Run run and wait until finish or error
