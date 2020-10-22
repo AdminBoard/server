@@ -11,6 +11,12 @@ var (
 )
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			log.E(r)
+		}
+	}()
+
 	log.SetFile(app.DefaultLog)
 	switch command.Cmd() {
 	case `start`:
@@ -19,7 +25,7 @@ func main() {
 		command.StopService()
 	case `run`:
 		if e := app.Run(); e != nil {
-			log.E(e)
+			panic(e)
 		}
 	default:
 		println(`Usage: adminboard [start/stop]`)
