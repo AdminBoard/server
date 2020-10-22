@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	svr *api.Server
+	svr         *api.Server
+	staticPath  string
+	staticProxy string
 )
 
 //APIServer ..
@@ -59,8 +61,29 @@ func Init() error {
 		return e
 	}
 
+	if staticProxy != `` {
+		svr.Proxy(`*`, staticProxy)
+	} else {
+		path := staticPath
+		if path == `` {
+			path = `public`
+		}
+		svr.FileRoute(`*`, path, `index.html`)
+	}
+
 	svr.AddAuthMiddleware(authMiddleware)
 	return nil
+}
+
+//Static ...
+func Static(path string) {
+	staticPath = path
+}
+
+//StaticProxy ...
+func StaticProxy(url string) {
+	staticProxy = url
+
 }
 
 //Run run and wait until finish or error
