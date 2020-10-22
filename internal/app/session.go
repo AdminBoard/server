@@ -37,7 +37,7 @@ func setCookie(header api.Header, sessionID string) {
 	if header == nil {
 		return
 	}
-	age := 60 * 5 //5 minutes
+	age := 60 * 15 //5 minutes
 	if sessionID == `` {
 		age = 0
 	}
