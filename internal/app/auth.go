@@ -6,8 +6,8 @@ import (
 	"github.com/eqto/api-server"
 )
 
-func authMiddleware(ctx api.RequestCtx) error {
-	session := getSession(ctx.Tx(), nil, ctx.Header().Get(`Cookie`))
+func authenticator(ctx api.Context) error {
+	session := getSession(ctx)
 	if session != nil {
 		ctx.Session().Put(`user_id`, session.GetString(`user_id`))
 		ctx.Session().Put(`role_id`, session.GetString(`role_id`))

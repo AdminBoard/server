@@ -39,7 +39,8 @@ func page(ctx api.Context, q string, param interface{}) (interface{}, error) {
 		jsResp.Put(`widgets`, widgets)
 		return jsResp, nil
 	}
-	return api.ResponseError(api.StatusNotFound, fmt.Errorf(`Page %v not found`, param))
+	ctx.SetStatus(api.StatusNotFound)
+	return nil, fmt.Errorf(`Page %v not found`, param)
 }
 
 //PageByID ..

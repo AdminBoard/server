@@ -34,69 +34,73 @@ func apiRoute(ctx apis.Context) (interface{}, error) {
 	case `page_id`:
 		id, e := strconv.Atoi(subcommand)
 		if e != nil {
-			return apis.ResponseError(apis.StatusNotFound, e)
+			ctx.SetStatus(apis.StatusNotFound)
+			return nil, e
 		}
 		return api.PageByID(ctx, id)
 	}
-	return apis.ResponseError(apis.StatusNotFound, errors.New(ctx.Request().URL().RawQuery))
+	ctx.SetStatus(apis.StatusNotFound)
+	return nil, errors.New(ctx.Request().URL().RawQuery)
 }
 
 func apiPublic(ctx apis.Context) (interface{}, error) {
 	switch ctx.Request().URL().RawQuery {
 	case `login`:
-		js := ctx.Request().JSONBody()
+		js := ctx.Request().JSON()
 
 		//check time
 		reqTime := js.GetInt(`time`)
 		t := time.Now().Unix()
 		if int64(reqTime) < t-(3*60) || int64(reqTime) > t+(3*60) {
-			return apis.ResponseError(apis.StatusUnauthorized, fmt.Errorf(`invalid time %d`, reqTime))
+			ctx.SetStatus(apis.StatusUnauthorized)
+			return nil, fmt.Errorf(`invalid time %d`, reqTime)
 		}
 
 		rs, e := ctx.Tx().Get(query.Get(query.LoginUser), js.GetString(`username`))
 		if e != nil {
-			return apis.ResponseError(apis.StatusUnauthorized, e)
+			ctx.SetStatus(apis.StatusUnauthorized)
+			return nil, e
 		} else if rs == nil {
-			return apis.ResponseError(apis.StatusUnauthorized, errors.New(`user not found`))
+			ctx.SetStatus(apis.StatusUnauthorized)
+			return nil, errors.New(`user not found`)
 		}
 		userID := rs.Int(`id`)
 
 		sig := util.Sha1(rs.String(`secret`) + js.GetString(`time`))
 
 		if js.GetString(`signature`) != sig {
-			return apis.ResponseError(apis.StatusUnauthorized, errors.New(`invalid password`))
+			ctx.SetStatus(apis.StatusUnauthorized)
+			return nil, errors.New(`invalid password`)
 		}
 
 		res, e := ctx.Tx().Exec(query.Get(query.LoginNewSession), userID, nil)
 		if e != nil {
-			return apis.ResponseError(apis.StatusInternalServerError, e)
+			return nil, e
 		}
 		id, e := res.LastInsertID()
 		if e != nil || id == 0 {
 			if e == nil {
 				e = errors.New(`invalid session`)
 			}
-			return apis.ResponseError(apis.StatusInternalServerError, e)
+			return nil, e
 		}
 		sess := encodeIds(id, 40)
 		ctx.Tx().Exec(query.Get(query.LoginUpdateSession), sess, id)
 
 		cookie := fmt.Sprintf(`session_id=%s; Max-Age=%d; HttpOnly`, sess, 60*15)
-		ctx.Response().Header().Add(`Set-Cookie`, cookie)
+		ctx.Response().Header().Set(`Set-Cookie`, cookie)
 
 		return json.Object{
 			`session_id`: sess,
 		}, nil
 	case `session`:
-		if session := getSession(
-			ctx.Tx(),
-			ctx.Response().Header(),
-			ctx.Request().Header().Get(`Cookie`)); session != nil {
+		if session := getSession(ctx); session != nil {
 			return session, nil
 		}
 		return nil, nil
 	}
-	return apis.ResponseError(apis.StatusNotFound, errors.New(ctx.Request().URL().RawQuery))
+	ctx.SetStatus(apis.StatusNotFound)
+	return nil, errors.New(ctx.Request().URL().RawQuery)
 }
 
 func encodeIds(userID int, length int) string {

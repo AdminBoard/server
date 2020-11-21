@@ -64,7 +64,7 @@ func Init() error {
 
 	svr.FileRoute(`*`, `public`, `index.html`)
 
-	svr.AddAuthMiddleware(authMiddleware)
+	svr.AddRouteAuthenticator(authenticator)
 	return nil
 }
 
