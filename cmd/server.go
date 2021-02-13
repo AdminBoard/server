@@ -4,6 +4,7 @@ import (
 	"github.com/adminboard/server/internal/app"
 	"github.com/eqto/command"
 	log "github.com/eqto/go-logger"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (

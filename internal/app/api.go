@@ -34,12 +34,12 @@ func apiRoute(ctx apis.Context) (interface{}, error) {
 	case `page_id`:
 		id, e := strconv.Atoi(subcommand)
 		if e != nil {
-			ctx.SetStatus(apis.StatusNotFound)
+			ctx.Response().SetStatus(apis.StatusNotFound, ``)
 			return nil, e
 		}
 		return api.PageByID(ctx, id)
 	}
-	ctx.SetStatus(apis.StatusNotFound)
+	ctx.Response().SetStatus(apis.StatusNotFound, ``)
 	return nil, errors.New(ctx.Request().URL().RawQuery)
 }
 
@@ -52,16 +52,16 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 		reqTime := js.GetInt(`time`)
 		t := time.Now().Unix()
 		if int64(reqTime) < t-(3*60) || int64(reqTime) > t+(3*60) {
-			ctx.SetStatus(apis.StatusUnauthorized)
+			ctx.Response().SetStatus(apis.StatusUnauthorized, fmt.Sprintf(`invalid time %d`, reqTime))
 			return nil, fmt.Errorf(`invalid time %d`, reqTime)
 		}
 
 		rs, e := ctx.Tx().Get(query.Get(query.LoginUser), js.GetString(`username`))
 		if e != nil {
-			ctx.SetStatus(apis.StatusUnauthorized)
+			ctx.Response().SetStatus(apis.StatusUnauthorized, e.Error())
 			return nil, e
 		} else if rs == nil {
-			ctx.SetStatus(apis.StatusUnauthorized)
+			ctx.Response().SetStatus(apis.StatusUnauthorized, `user not found`)
 			return nil, errors.New(`user not found`)
 		}
 		userID := rs.Int(`id`)
@@ -69,7 +69,7 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 		sig := util.Sha1(rs.String(`secret`) + js.GetString(`time`))
 
 		if js.GetString(`signature`) != sig {
-			ctx.SetStatus(apis.StatusUnauthorized)
+			ctx.Response().SetStatus(apis.StatusUnauthorized, `invalid password`)
 			return nil, errors.New(`invalid password`)
 		}
 
@@ -99,7 +99,7 @@ func apiPublic(ctx apis.Context) (interface{}, error) {
 		}
 		return nil, nil
 	}
-	ctx.SetStatus(apis.StatusNotFound)
+	ctx.Response().SetStatus(apis.StatusNotFound, ``)
 	return nil, errors.New(ctx.Request().URL().RawQuery)
 }
 

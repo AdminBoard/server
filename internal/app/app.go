@@ -41,7 +41,7 @@ func Init() error {
 	password := config.GetOr(`Database.password`, `adminboard`)
 	name := config.GetOr(`Database.name`, `adminboard`)
 	log.D(fmt.Sprintf(`Open database %s:xxx@%s:%d/%s`, username, hostname, port, name))
-	if e := svr.OpenDatabase(hostname, port, username, password, name); e != nil {
+	if e := svr.OpenDatabase(`mysql`, hostname, port, username, password, name); e != nil {
 		log.D(fmt.Sprintf(`%s:xxx@%s:%d/%s`, username, hostname, port, name))
 		return e
 	}
