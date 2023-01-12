@@ -3,7 +3,7 @@ module github.com/adminboard/adminboard
 go 1.18
 
 require (
-	github.com/eqto/api-server v0.15.7
+	github.com/eqto/api-server v0.15.8
 	github.com/eqto/config v0.3.1
 	github.com/eqto/dbm v0.15.2
 	github.com/eqto/go-json v0.4.1
