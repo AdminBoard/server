@@ -11,6 +11,10 @@ import (
 
 var svr *api.Server
 
+func init() {
+	svr = api.New()
+}
+
 func Run() error {
 	port := service.GetInt(`port`)
 
@@ -23,7 +27,6 @@ func Run() error {
 		return e
 	}
 
-	svr = api.New()
 	svr.SetDatabase(db.CN())
 	svr.NormalizeFunc(true)
 	svr.SetPrefixPath(`/api`)
@@ -35,6 +38,10 @@ func Run() error {
 	routes.Load(svr)
 
 	return svr.Serve(port)
+}
+
+func Server() *api.Group {
+	return svr.Group(`api`)
 }
 
 func Shutdown() {
