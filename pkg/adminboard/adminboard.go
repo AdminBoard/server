@@ -13,6 +13,10 @@ var svr *api.Server
 
 func init() {
 	svr = api.New()
+	svr.SetPrefixPath(`/api`)
+	svr.NormalizeFunc(true)
+	svr.AddMiddleware(middleware.AuthMiddleware).Secure()
+	svr.Group(`api`).AddMiddleware(middleware.AuthAPI).Secure()
 }
 
 func Run() error {
@@ -28,11 +32,6 @@ func Run() error {
 	}
 
 	svr.SetDatabase(db.CN())
-	svr.NormalizeFunc(true)
-	svr.SetPrefixPath(`/api`)
-
-	svr.AddMiddleware(middleware.AuthMiddleware).Secure()
-	svr.Group(`api`).AddMiddleware(middleware.AuthAPI).Secure()
 
 	routes.LoadFromDatabase(svr)
 	routes.Load(svr)
