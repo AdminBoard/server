@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
-	import DataInput from '$lib/components/data-input.svelte';
 	import InputSave from '$lib/components/input-save.svelte';
 	import notification from '$lib/components/notification/notification';
 	import { createEventDispatcher } from 'svelte';
@@ -72,29 +71,24 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="icon">Icon:</label>
-			<InputSave name="icon"
-				bind:value={data.icon}
-				saveUrl="/admin/menu/update?id={data.id}"
-				saveCallback={callback}
-				disabled={updatingIcon}
-				class="flex-1"
- />
-			<!-- <DataInput
+			<InputSave
 				name="icon"
 				bind:value={data.icon}
 				saveUrl="/admin/menu/update?id={data.id}"
 				saveCallback={callback}
 				disabled={updatingIcon}
-			/> -->
+				class="flex-1"
+			/>
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Name:</label>
-			<DataInput
+			<InputSave 
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
 				saveCallback={callback}
 				disabled={updatingName}
+				class="flex-1"
 			/>
 		</div>
 		<div style="height: 600px;" />

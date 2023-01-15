@@ -33,7 +33,7 @@
                 saveCallback!(null);
                 oldValue = value;
             } else saveCallback!(resp.message);
-        });
+        }).finally(() => (disabled = false));
 
     }
 
