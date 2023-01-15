@@ -21,7 +21,8 @@ func Menu(ctx api.Context) error {
 			return ctx.Write(nil)
 
 		default:
-			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status`).From(db.Prefix(`menu m`)).Where(`id = ?`)
+			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.name AS page`).
+				From(db.Prefix(`menu m`)).LeftJoin(db.Prefix(`page p`), `p.id = m.page_id`).Where(`m.id = ?`)
 
 			rsMenu, e := cn.Get(cn.SQL(stmt), menuID)
 			if e != nil {
