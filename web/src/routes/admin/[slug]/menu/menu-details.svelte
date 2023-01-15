@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
-	import InputSave from '$lib/components/data-input.svelte';
+	import DataInput from '$lib/components/data-input.svelte';
+	import InputSave from '$lib/components/input-save.svelte';
 	import notification from '$lib/components/notification/notification';
 	import { createEventDispatcher } from 'svelte';
 
@@ -71,17 +72,24 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="icon">Icon:</label>
-			<InputSave
+			<InputSave name="icon"
+				bind:value={data.icon}
+				saveUrl="/admin/menu/update?id={data.id}"
+				saveCallback={callback}
+				disabled={updatingIcon}
+				class="flex-1"
+ />
+			<!-- <DataInput
 				name="icon"
 				bind:value={data.icon}
 				saveUrl="/admin/menu/update?id={data.id}"
 				saveCallback={callback}
 				disabled={updatingIcon}
-			/>
+			/> -->
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Name:</label>
-			<InputSave
+			<DataInput
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
@@ -90,7 +98,7 @@
 			/>
 		</div>
 		<div style="height: 600px;" />
-		<div class="flex items-center space-x-2">
+		<!-- <div class="flex items-center space-x-2">
 			<label for="page">Page:</label>
 			<select name="page">
 				<option value="1">Page 1</option>
@@ -100,14 +108,14 @@
 				<option value="1">Page 5</option>
 				<option value="1">Page 6</option>
 			</select>
-			<!--<InputSave
+			<InputSave
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
 				saveCallback={callback}
 				disabled={updatingName}
-			/> -->
-		</div>
+			/>
+		</div> -->
 	</div>
 {/if}
 
