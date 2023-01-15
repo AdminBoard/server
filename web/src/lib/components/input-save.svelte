@@ -1,15 +1,15 @@
 <script lang="ts">
-	import api from "$lib/api";
-	import { onMount } from "svelte";
-	import Textfield from "./textfield.svelte";
+    import api from '$lib/api';
+    import { onMount } from 'svelte';
+    import Textfield from './textfield.svelte';
 
-	export let name = '';
-	export let value = '';
-	export let width = '16';
-	export let disabled = false;
-	export let allowCancel = false;
-	export let saveUrl = '';
-	export let saveCallback: Function | null = null;
+    export let name = '';
+    export let value = '';
+    export let width = '16';
+    export let disabled = false;
+    export let allowCancel = false;
+    export let saveUrl = '';
+    export let saveCallback: Function | null = null;
 
     export { clazz as class };
     let clazz = '';
@@ -18,8 +18,8 @@
     let textfield: Textfield;
 
     onMount(() => {
-        oldValue = value
-    })
+        oldValue = value;
+    });
 
     function save() {
         if (saveUrl == '') return;
@@ -28,21 +28,26 @@
         let params: Record<string, any> = {};
         params[name] = value;
 
-        api.post(saveUrl, params).then((resp) => {
-            if (resp.status == 0) {
-                saveCallback!(null);
-                oldValue = value;
-            } else saveCallback!(resp.message);
-        }).finally(() => (disabled = false));
-
+        api.post(saveUrl, params)
+            .then((resp) => {
+                if (resp.status == 0) {
+                    saveCallback!(null);
+                    oldValue = value;
+                } else saveCallback!(resp.message);
+            })
+            .finally(() => (disabled = false));
     }
-
 </script>
+
 <div class="input {clazz}">
-    <Textfield bind:this={textfield} bind:value={value} class={clazz} {disabled} />
+    <Textfield bind:this={textfield} bind:value class={clazz} {disabled} />
     <div class="button" class:invisible={value == oldValue}>
-    <button class="material-icons" on:click={() => (value = oldValue)} {disabled}>undo</button>
-    <button class="material-icons" on:click={save} {disabled}>done</button>
+        <button
+            class="material-icons"
+            on:click={() => (value = oldValue)}
+            {disabled}>undo</button
+        >
+        <button class="material-icons" on:click={save} {disabled}>done</button>
     </div>
 </div>
 

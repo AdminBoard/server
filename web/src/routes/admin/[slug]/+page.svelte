@@ -18,7 +18,8 @@
 	let unsubscribe = page.subscribe((data) => {
 		api.get('page?url=/admin/' + data.params.slug).then((resp) => {
 			if (resp.status == 0) {
-				if (resp.data.layout != null) layout = JSON.parse(resp.data.layout);
+				if (resp.data.layout != null)
+					layout = JSON.parse(resp.data.layout);
 			} else {
 				error = resp.message;
 			}

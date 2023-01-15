@@ -7,8 +7,8 @@ let menu = writable([])
 export let loggedIn = writable(false)
 
 export default {
-    load: load,
-    login: login,
+	load: load,
+	login: login,
 	logout: logout,
 	menu: menu,
 	loggedIn: loggedIn
@@ -20,8 +20,8 @@ export function load(): Promise<any> {
 			if (resp.status < 100) {
 				if (resp.status == 0) loggedIn.set(true)
 				refreshMenu()
-				resolve(resp);
-			}else {
+				resolve(resp)
+			} else {
 				loggedIn.set(false)
 				menu.set([])
 				reject(resp.message)
@@ -33,23 +33,23 @@ export function load(): Promise<any> {
 }
 
 export function login(username: string, password: string): Promise<boolean> {
-    const time = Math.floor(new Date().getTime() / 1000);
+	const time = Math.floor(new Date().getTime() / 1000)
 
-    const secret = md5(username + password);
+	const secret = md5(username + password)
 
-    return new Promise<boolean>((resolve, reject) => {
-        api.post('login', { username: username, signature: md5(secret + time), time: time })
-            .then(resp => {
-                if (resp.status == 0) {
+	return new Promise<boolean>((resolve, reject) => {
+		api.post('login', { username: username, signature: md5(secret + time), time: time })
+			.then(resp => {
+				if (resp.status == 0) {
 					loggedIn.set(true)
 					refreshMenu()
 					resolve(true)
 				}
 				else reject(resp.message)
-            }).catch(e => {
+			}).catch(e => {
 				reject(e)
 			})
-    })
+	})
 }
 
 function logout(): Promise<null> {

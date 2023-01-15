@@ -15,15 +15,14 @@
 		{ name: 'name', label: 'ID' },
 		{ name: 'url', label: 'URL' },
 		{ name: 'title', label: 'Title' },
-		{ name: 'description', label: 'Description' }
+		{ name: 'description', label: 'Description' },
 	];
 
 	let rows: any[] = [];
 
 	onMount(() => {
 		loading = true;
-		api
-			.postData('admin/pages')
+		api.postData('admin/pages')
 			.then((data) => {
 				if (data != null) rows = data;
 			})
@@ -36,7 +35,11 @@
 	}
 </script>
 
-<Titlebar><span>{title}</span><Button class="material-icons" on:click={click}>add</Button></Titlebar>
+<Titlebar
+	><span>{title}</span><Button class="material-icons" on:click={click}
+		>add</Button
+	></Titlebar
+>
 
 <Content>
 	<Table {columns} {rows} />

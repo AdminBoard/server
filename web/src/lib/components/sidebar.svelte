@@ -9,10 +9,18 @@
 	session.menu.subscribe((m) => (menu = m));
 </script>
 
-<input type="checkbox" id="menu-open" bind:checked={showSidebar} class="hidden" />
+<input
+	type="checkbox"
+	id="menu-open"
+	bind:checked={showSidebar}
+	class="hidden"
+/>
 
 <header class="bg-primary flex justify-between md:hidden">
-	<a href="/dashboard" class="block p-4 text-white font-bold whitespace-nowrap truncate">
+	<a
+		href="/dashboard"
+		class="block p-4 text-white font-bold whitespace-nowrap truncate"
+	>
 		Adminboard
 	</a>
 
@@ -62,9 +70,15 @@
 		class="flex flex-col space-y-6"
 		data-dev-hint="optional div for having an extra footer navigation"
 	>
-		<a href="/dashboard" class="text-white flex items-center space-x-2 px-4" title="Adminboard">
+		<a
+			href="/dashboard"
+			class="text-white flex items-center space-x-2 px-4"
+			title="Adminboard"
+		>
 			<img src="/ic_logo.png" width="32" height="32" alt="logo" />
-			<span class="text-2xl font-extrabold whitespace-nowrap truncate">Adminboard</span>
+			<span class="text-2xl font-extrabold whitespace-nowrap truncate"
+				>Adminboard</span
+			>
 		</a>
 
 		<nav data-dev-hint="main navigation">
@@ -72,7 +86,9 @@
 				<Menu icon={m.icon} url={m.url}>{m.name}</Menu>
 				{#if m.children != null}
 					{#each m.children as sub}
-						<Menu submenu={true} icon={sub.icon} url={sub.url}>{sub.name}</Menu>
+						<Menu submenu={true} icon={sub.icon} url={sub.url}
+							>{sub.name}</Menu
+						>
 					{/each}
 				{/if}
 			{/each}

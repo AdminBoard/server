@@ -34,7 +34,9 @@
 					{disabled}
 				/>
 				<div>
-					<button class="mt-6 float-right" {disabled} on:click={login}>Login</button>
+					<button class="mt-6 float-right" {disabled} on:click={login}
+						>Login</button
+					>
 				</div>
 			</div>
 		</form>

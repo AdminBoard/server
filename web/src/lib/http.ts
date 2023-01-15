@@ -46,5 +46,5 @@ export class HttpResponse {
 }
 
 export class Error {
-    message: string|null = null;
+    message: string | null = null;
 }

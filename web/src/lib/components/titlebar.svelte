@@ -1,4 +1,6 @@
-<div class="titlebar flex items-center bg-primary-400 shadow-xs text-lg p-2 min-h-fit space-x-2">
+<div
+	class="titlebar flex items-center bg-primary-400 shadow-xs text-lg p-2 min-h-fit space-x-2"
+>
 	<slot />
 </div>
 

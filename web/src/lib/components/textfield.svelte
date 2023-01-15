@@ -8,7 +8,7 @@
 	export let type = 'text';
 
 	export { clazz as class };
-    let clazz = '';
+	let clazz = '';
 
 	let format: any;
 
@@ -29,7 +29,7 @@
 				}
 			}, 1000);
 		}
-		dispatch('input', {value: value, data: ev.data});
+		dispatch('input', { value: value, data: ev.data });
 	}
 </script>
 

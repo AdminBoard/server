@@ -33,7 +33,10 @@
 		class="bg-gray-600 text-gray-100 flex justify-between md:hidden"
 		data-dev-hint="mobile menu bar"
 	>
-		<a href="/dashboard" class="block p-4 text-white font-bold whitespace-nowrap truncate">
+		<a
+			href="/dashboard"
+			class="block p-4 text-white font-bold whitespace-nowrap truncate"
+		>
 			Adminboard
 		</a>
 
@@ -84,9 +87,15 @@
 			class="flex flex-col space-y-6"
 			data-dev-hint="optional div for having an extra footer navigation"
 		>
-			<a href="/dashboard" class="text-white flex items-center space-x-2 px-4" title="Adminboard">
+			<a
+				href="/dashboard"
+				class="text-white flex items-center space-x-2 px-4"
+				title="Adminboard"
+			>
 				<img src="/ic_logo.png" width="32" height="32" alt="logo" />
-				<span class="text-2xl font-extrabold whitespace-nowrap truncate">Adminboard</span>
+				<span class="text-2xl font-extrabold whitespace-nowrap truncate"
+					>Adminboard</span
+				>
 			</a>
 
 			<nav data-dev-hint="main navigation">

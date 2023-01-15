@@ -16,7 +16,7 @@ export default {
 }
 
 function show(title: string, message: string, timeout?: number) {
-    if (timeout == null) timeout = 2000;
-    newItem.set({id: ++counter, title: title, message: message, timeout: timeout})
+    if (timeout == null) timeout = 2000
+    newItem.set({ id: ++counter, title: title, message: message, timeout: timeout })
 }
 

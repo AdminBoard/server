@@ -19,7 +19,8 @@
 			.then((resp) => {
 				switch (resp.status) {
 					case 1:
-						if (get(page).url.pathname != '/user/change_password') goto('/user/change_password');
+						if (get(page).url.pathname != '/user/change_password')
+							goto('/user/change_password');
 						break;
 				}
 			})
@@ -34,7 +35,10 @@
 </script>
 
 {#if loadSession}
-	<div class="relative h-screen overflow-y-auto md:flex" data-dev-hint="container">
+	<div
+		class="relative h-screen overflow-y-auto md:flex"
+		data-dev-hint="container"
+	>
 		{#if $loggedIn}
 			<Sidebar />
 		{/if}

@@ -50,7 +50,10 @@
 		bind:value
 		{disabled}
 	/>
-	<div class="flex button-layout rounded-r z-10" class:invisible={value == oldValue}>
+	<div
+		class="flex button-layout rounded-r z-10"
+		class:invisible={value == oldValue}
+	>
 		{#if allowCancel}
 			<button
 				data-tooltip="cancel"

@@ -79,7 +79,11 @@
 					itemStore.set({});
 					if (resp.status == 0) {
 						if (params.onSuccess != null) {
-							notification.show('Sukses', params.onSuccess.message, 5000);
+							notification.show(
+								'Sukses',
+								params.onSuccess.message,
+								5000
+							);
 							switch (params.onSuccess.action) {
 								case 'close':
 									itemStore.set({});

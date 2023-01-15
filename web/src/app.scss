@@ -9,23 +9,31 @@
     html {
         font-family: 'Roboto', sans-serif;
     }
+
     .textfield {
         @apply relative;
+
         &:not(.nolabel) {
             @apply pt-8;
 
-            & input, textarea {
+            & input,
+            textarea {
                 @apply rounded-r-lg rounded-bl-lg;
             }
         }
-        &.nolabel input, textarea {
-                @apply rounded;
+
+        &.nolabel input,
+        textarea {
+            @apply rounded;
         }
+
         & textarea {
             resize: none;
             min-height: 5.5rem;
         }
-        & input, textarea {
+
+        & input,
+        textarea {
             @apply p-2 border-0 transition-colors bg-transparent;
             border: 2px solid $color-border;
             outline: none;
@@ -33,26 +41,32 @@
 
             &:hover {
                 @apply shadow;
-                & + label {
+
+                &+label {
                     @apply shadow;
                 }
             }
+
             &:focus {
                 border-color: $color-hover;
-                background-color: $color-text;        
-                & + label {
+                background-color: $color-text;
+
+                &+label {
                     border-color: $color-hover;
                     background-color: $color-hover;
                 }
             }
         }
+
         & label {
             @apply absolute rounded-t-lg px-2 -translate-y-full left-0;
             background-color: $color-border;
             border: 2px solid $color-border;
         }
     }
-    select, option {
+
+    select,
+    option {
         @apply p-2;
     }
 
@@ -65,13 +79,16 @@
             background-color: lighten($color-gray, 10%);
             color: lighten($color-gray, 40%);
         }
+
         &:not(:disabled):hover {
             filter: brightness(110%);
             box-shadow: 0 0 4px $color-secondary;
         }
+
         &:active {
             background-color: darken($color-primary, 5%);
         }
+
         &.secondary {
             background-color: $color-secondary
         }
@@ -86,31 +103,37 @@
     [data-tooltip] {
         @apply relative block;
     }
+
     [data-tooltip]:after {
-        @apply absolute z-20 mt-1 p-2 w-max top-full left-1/2 rounded text-sm leading-4 invisible opacity-0 drop-shadow-md max-w-md -translate-x-1/2
-            hover:transition duration-150 ease-out;
+        @apply absolute z-20 mt-1 p-2 w-max top-full left-1/2 rounded text-sm leading-4 invisible opacity-0 drop-shadow-md max-w-md -translate-x-1/2 hover: transition duration-150 ease-out;
         font-family: 'Roboto', sans-serif;
         content: attr(data-tooltip);
         background-color: transparentize(#000000, .2);
         color: #fff;
     }
+
     [data-tooltip].tooltip-right:after {
-        @apply mt-0 ml-1 top-1/2 left-full 
-            translate-x-0 -translate-y-1/2;
+        @apply mt-0 ml-1 top-1/2 left-full translate-x-0 -translate-y-1/2;
     }
+
     [data-tooltip]:hover:before,
     [data-tooltip]:hover:after {
         @apply visible opacity-80 float-right;
     }
 }
 
-button.primary, .bg-primary, .bg-primary-400 {
+button.primary,
+.bg-primary,
+.bg-primary-400 {
     background-color: $color-primary;
 }
+
 .bg-primary-400 {
     filter: brightness(110%);
 }
-button.primary, .bg-primary, .bg-primary-400 {
+
+button.primary,
+.bg-primary,
+.bg-primary-400 {
     color: $color-text;
 }
-

@@ -34,7 +34,8 @@
 			{#each columns as col}
 				{#if row[col.name] != null}
 					{#if col.format == 'number'}
-						<td class="text-right">{formatNumber(row[col.name])}</td>
+						<td class="text-right">{formatNumber(row[col.name])}</td
+						>
 					{:else}
 						<td>{row[col.name]}</td>
 					{/if}

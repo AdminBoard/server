@@ -24,15 +24,16 @@
 
 		abortController = new AbortController();
 		process = setTimeout(() => {
-			getOverride('/api/deposit/add/search?name=' + textValue, abortController?.signal).then(
-				(resp) => {
-					if (resp.status == 0) {
-						items = resp.data;
-						focus = true;
-					}
-					// else notification.show('Error', resp.message);
+			getOverride(
+				'/api/deposit/add/search?name=' + textValue,
+				abortController?.signal
+			).then((resp) => {
+				if (resp.status == 0) {
+					items = resp.data;
+					focus = true;
 				}
-			);
+				// else notification.show('Error', resp.message);
+			});
 		}, 200);
 	}
 
@@ -72,7 +73,10 @@
 	{#if items.length > 0}
 		<ul class="list" class:invisible={!focus}>
 			{#each items as item, i}
-				<li on:click|self={() => selectItem(item)} class:focus={focusIndex == i}>
+				<li
+					on:click|self={() => selectItem(item)}
+					class:focus={focusIndex == i}
+				>
 					{item.name} (Rp{item.balance.toLocaleString('id-ID')})
 				</li>
 			{/each}

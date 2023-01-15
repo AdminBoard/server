@@ -8,7 +8,10 @@
 
 	function click() {
 		if (password1.length < 6) {
-			notification.show('Error', 'Password minimum length is 6 characters');
+			notification.show(
+				'Error',
+				'Password minimum length is 6 characters'
+			);
 		} else if (password1 != password2) {
 			notification.show('Error', 'Password not matches');
 		} else {
@@ -25,10 +28,22 @@
 			<img src="/logo.jpg" alt="logo" />
 		</div>
 		<div class="mt-4 space-y-1">
-			<Textfield label="New Password" type="password" bind:value={password1} {disabled} />
-			<Textfield label="Repeat Password" type="password" bind:value={password2} {disabled} />
+			<Textfield
+				label="New Password"
+				type="password"
+				bind:value={password1}
+				{disabled}
+			/>
+			<Textfield
+				label="Repeat Password"
+				type="password"
+				bind:value={password2}
+				{disabled}
+			/>
 			<div>
-				<button class="mt-6 float-right" {disabled} on:click={click}>Change Password</button>
+				<button class="mt-6 float-right" {disabled} on:click={click}
+					>Change Password</button
+				>
 			</div>
 		</div>
 	</div>

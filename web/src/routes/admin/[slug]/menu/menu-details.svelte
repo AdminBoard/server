@@ -46,8 +46,7 @@
 
 	function updateStatus(status: string) {
 		updatingStatus = true;
-		api
-			.postData('admin/menu/status?id=' + data.id, { status: status })
+		api.postData('admin/menu/status?id=' + data.id, { status: status })
 			.then((_) => {
 				data.status = status;
 				dispatch('change');
@@ -63,9 +62,15 @@
 			<label for="">Status:</label>
 			{data.status}
 			{#if data.status == 'draft' || data.status == 'suspended'}
-				<button on:click={() => updateStatus('active')} disabled={updatingStatus}>publish</button>
+				<button
+					on:click={() => updateStatus('active')}
+					disabled={updatingStatus}>publish</button
+				>
 			{:else if data.status == 'active'}
-				<button on:click={() => updateStatus('suspended')} disabled={updatingStatus}>
+				<button
+					on:click={() => updateStatus('suspended')}
+					disabled={updatingStatus}
+				>
 					suspend
 				</button>
 			{/if}
@@ -83,7 +88,7 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Name:</label>
-			<InputSave 
+			<InputSave
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
@@ -94,7 +99,7 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Page ID:</label>
-			<InputSave 
+			<InputSave
 				name="page"
 				bind:value={data.page}
 				saveUrl="/admin/menu/update?id={data.id}"
