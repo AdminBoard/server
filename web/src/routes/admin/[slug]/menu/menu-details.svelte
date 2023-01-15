@@ -11,7 +11,8 @@
 
 	let updatingIcon = false,
 		updatingName = false,
-		updatingStatus = false;
+		updatingStatus = false,
+		updatingPage = false;
 
 	page.subscribe((page) => {
 		let hash = page.url.hash;
@@ -88,6 +89,17 @@
 				saveUrl="/admin/menu/update?id={data.id}"
 				saveCallback={callback}
 				disabled={updatingName}
+				class="flex-1"
+			/>
+		</div>
+		<div class="flex items-center space-x-2">
+			<label for="name">Page ID:</label>
+			<InputSave 
+				name="page"
+				bind:value={data.page}
+				saveUrl="/admin/menu/update?id={data.id}"
+				saveCallback={callback}
+				disabled={updatingPage}
 				class="flex-1"
 			/>
 		</div>

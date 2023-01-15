@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"fmt"
+
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
@@ -144,22 +146,40 @@ func MenuUpdate(ctx api.Context) error {
 	params := []interface{}{}
 
 	js := ctx.Request().JSON()
+
 	if js.Has(`status`) {
 		return ctx.StatusForbidden(`status not changed`)
 	}
-	for key := range js {
-		stmtSet = s.Set(key + ` = ?`)
-		params = append(params, js.GetString(key))
+
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
 	}
+
+	if page := js.GetString(`page`); page != `` {
+		stmt := dbm.Select(`id`).From(db.Prefix(`page`)).Where(`name = ?`)
+
+		rs, e := cn.Get(cn.SQL(stmt), page)
+		if e != nil {
+			return ctx.StatusInternalServerError(e.Error())
+		}
+		if rs == nil {
+			return ctx.StatusNotFound(fmt.Sprintf(`Page %s not found`, page))
+		}
+		stmtSet = s.Set(`page_id = ?`)
+		params = append(params, rs.Int(`id`))
+	} else {
+		for key := range js {
+			stmtSet = s.Set(key + ` = ?`)
+			params = append(params, js.GetString(key))
+		}
+	}
+
 	if len(params) == 0 {
 		return ctx.StatusBadRequest(`no update`)
 	}
 	stmtSet.Where(`id = ?`)
 	params = append(params, menuID)
-	cn, e := ctx.Database()
-	if e != nil {
-		return ctx.StatusInternalServerError(e.Error())
-	}
 	_, e = cn.Exec(cn.SQL(s), params...)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
