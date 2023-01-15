@@ -10,13 +10,23 @@
         font-family: 'Roboto', sans-serif;
     }
     .textfield {
-        @apply relative pt-8;
+        @apply relative;
+        &:not(.nolabel) {
+            @apply pt-8;
+
+            & input, textarea {
+                @apply rounded-r-lg rounded-bl-lg;
+            }
+        }
+        &.nolabel input, textarea {
+                @apply rounded;
+        }
         & textarea {
             resize: none;
             min-height: 5.5rem;
         }
         & input, textarea {
-            @apply p-2 border-0 rounded-r-lg rounded-bl-lg transition-colors bg-transparent;
+            @apply p-2 border-0 transition-colors bg-transparent;
             border: 2px solid $color-border;
             outline: none;
             width: 100%;

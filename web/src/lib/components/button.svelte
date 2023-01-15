@@ -12,20 +12,6 @@
 
 	function click() {
 		dispatch('click', { action: action, params: params });
-		// switch (action) {
-		// 	case 'popup':
-		// 		console.log(params);
-
-		// 		// try {
-		// 		// 	if (params != null) {
-		// 		// 		show(params.title, params.url);
-		// 		// 	}
-		// 		// } catch (e) {}
-		// 		// show()
-		// 		break;
-		// 	default:
-		// 		dispatch('click', { action: action });
-		// }
 	}
 </script>
 

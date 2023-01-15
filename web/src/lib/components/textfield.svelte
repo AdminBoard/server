@@ -7,7 +7,9 @@
 	export let disabled: boolean = false;
 	export let type = 'text';
 
-	let focus: boolean = false;
+	export { clazz as class };
+    let clazz = '';
+
 	let format: any;
 
 	const dispatch = createEventDispatcher();
@@ -27,11 +29,11 @@
 				}
 			}, 1000);
 		}
-		dispatch('input', ev);
+		dispatch('input', {value: value, data: ev.data});
 	}
 </script>
 
-<div class:disabled class="textfield">
+<div class:disabled class:nolabel={label == ''} class="textfield {clazz}">
 	{#if type == 'password'}
 		<input
 			name="input"
@@ -57,5 +59,7 @@
 			on:blur={(ev) => dispatch('blur', ev)}
 		/>
 	{/if}
-	<label for="input">{label}</label>
+	{#if label != ''}
+		<label for="input">{label}</label>
+	{/if}
 </div>
