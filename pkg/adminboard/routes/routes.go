@@ -16,6 +16,7 @@ func Load(svr *api.Server) {
 	g.Post(`/admin/menu/status`).Secure().AddAction(admin.MenuStatus)
 
 	g.PostAction(admin.Pages).Secure()
+	g.Post(`/admin/pages/add`).Secure().AddAction(admin.PageAdd)
 
 	svr.Post(`/login`).AddAction(Login)
 	svr.Get(`/logout`).AddAction(Logout)
