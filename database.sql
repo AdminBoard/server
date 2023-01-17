@@ -37,11 +37,10 @@ CREATE TABLE `admin_group_page` (
   PRIMARY KEY (`group_id`,`page_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
-CREATE TABLE `admin_group_page_api` (
-  `group_id` int(10) unsigned NOT NULL,
-  `page_api_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`group_id`,`page_api_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+CREATE TABLE `admin_group_api` (
+  `group_id` INT UNSIGNED NOT NULL,
+  `api_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`group_id`, `api_id`));
 
 CREATE TABLE `admin_menu` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -133,8 +132,7 @@ INSERT INTO admin_page_api VALUES('1', '1', '1'), ('2', '1', '2'), ('3', '1', '3
 
 INSERT INTO admin_group_page VALUES('1', '1'), ('1', '2'), ('1', '3'), ('1', '4');
 
-INSERT INTO admin_group_page_api VALUES('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'), ('1', '5'), ('1', '6');
-
+INSERT INTO admin_group_api VALUES('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'), ('1', '5'), ('1', '6');
 
 INSERT INTO admin_menu VALUES('1', '0', '0', 'Settings', 'settings', '0', 'active'), ('2', '1', '1', 'Menu', 'menu', '0', 'active'), ('3', '1', '2', 'Groups', 'groups', '1', 'active'), ('4', '1', '3', 'Users', 'group', '2', 'active'), ('5', '1', '4', 'Pages', 'web', '3', 'active'), ('100', '0', '100', 'Logout', 'logout', '100', 'active');
 

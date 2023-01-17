@@ -45,8 +45,7 @@ func AuthAPI(ctx api.Context) error {
 	}
 	groupID := ctx.Session().GetInt(`groupID`)
 
-	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`page_api pa`), `a.id = pa.api_id`).
-		InnerJoin(db.Prefix(`group_page_api gpa`), `pa.id = gpa.page_api_id`).Where(`a.url = ?`, `gpa.group_id = ?`)
+	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`group_api ga`), `a.id = ga.api_id`).Where(`a.url = ?`, `ga.group_id = ?`)
 
 	rs, e := cn.Select(cn.SQL(stmt), path, groupID)
 
