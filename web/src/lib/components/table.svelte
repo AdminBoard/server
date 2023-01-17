@@ -53,7 +53,7 @@
 	@import '../../styles/colors';
 
 	table.selectable {
-		tr:hover {
+		tr:has(td):hover {
 			@apply cursor-pointer;
 			background-color: $color-hover;
 		}
