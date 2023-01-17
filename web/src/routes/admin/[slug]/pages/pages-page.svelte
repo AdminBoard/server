@@ -2,11 +2,10 @@
 	import api from '$lib/api';
 	import Button from '$lib/components/button.svelte';
 	import Content from '$lib/components/content.svelte';
+	import DataTable from '$lib/components/data-table.svelte';
 	import { showPage } from '$lib/components/modal.svelte';
 	import notification from '$lib/components/notification/notification';
-	import Table from '$lib/components/table.svelte';
 	import Titlebar from '$lib/components/titlebar.svelte';
-	import { onMount } from 'svelte';
 
 	let loading = false;
 	let title = 'Pages';
@@ -20,15 +19,17 @@
 
 	let rows: any[] = [];
 
-	onMount(() => {
-		loading = true;
-		api.postData('admin/pages')
-			.then((data) => {
-				if (data != null) rows = data;
-			})
-			.catch((e) => notification.show('Error', e))
-			.finally(() => (loading = false));
-	});
+	let onSelect = { url: '/admin/page/details/%name%' };
+
+	// onMount(() => {
+	// 	loading = true;
+	// 	api.postData('admin/pages')
+	// 		.then((data) => {
+	// 			if (data != null) rows = data;
+	// 		})
+	// 		.catch((e) => notification.show('Error', e))
+	// 		.finally(() => (loading = false));
+	// });
 
 	function click(ev: any) {
 		showPage('', '/admin/pages/add');
@@ -42,5 +43,6 @@
 >
 
 <Content>
-	<Table {columns} {rows} />
+	<DataTable {onSelect} source="/admin/pages" {columns} />
+	<!-- <Table {columns} {rows} /> -->
 </Content>

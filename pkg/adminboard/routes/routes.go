@@ -17,6 +17,7 @@ func Load(svr *api.Server) {
 
 	g.PostAction(admin.Pages).Secure()
 	g.Post(`/admin/pages/add`).Secure().AddAction(admin.PageAdd)
+	g.Post(`/admin/page/update`).Secure().AddAction(admin.PageUpdate)
 
 	svr.Post(`/login`).AddAction(Login)
 	svr.Get(`/logout`).AddAction(Logout)
