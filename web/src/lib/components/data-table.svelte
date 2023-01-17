@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import api from '$lib/api';
 	import { onMount } from 'svelte';
 	import { showPage } from './modal.svelte';
 	import Table from './table.svelte';
 
-	export let source: string;
+	export let source: string = '';
 	export let columns: any[] = [];
 	export let onSelect: any = null;
 
@@ -28,6 +29,14 @@
 			case 'popup':
 				showPage('', onSelect.url, detail);
 				break;
+			default:
+				if (onSelect.url != '') {
+					let url = onSelect.url;
+					for (const key in detail) {
+						url = url.replaceAll('%' + key + '%', detail[key]);
+					}
+					goto(url);
+				}
 		}
 	}
 </script>
