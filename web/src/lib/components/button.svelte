@@ -5,6 +5,7 @@
 
 	export let action: string | null = null;
 	export let params: any = null;
+	export let disabled = false;
 
 	export { clazz as class };
 
@@ -15,4 +16,4 @@
 	}
 </script>
 
-<button class={clazz} on:click|self={click}><slot /></button>
+<button class={clazz} on:click|self={click} {disabled}><slot /></button>
