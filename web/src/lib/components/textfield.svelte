@@ -8,6 +8,7 @@
 	export let disabled: boolean = false;
 	export let type = 'text';
 	export let resizeable = '';
+	export let width: string = '';
 
 	export { clazz as class };
 	let clazz = '';
@@ -47,9 +48,15 @@
 			textarea.selectionStart = textarea.selectionEnd = start + 1;
 		}
 	}
+	// $:let style = ;
 </script>
 
-<div class:disabled class:nolabel={label == ''} class="textfield {clazz}">
+<div
+	class:disabled
+	class:nolabel={label == ''}
+	class="textfield {clazz}"
+	style="width: {width == '' ? 'auto' : width + 'rem'};"
+>
 	{#if type == 'password'}
 		<input
 			name="input"
