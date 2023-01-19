@@ -1,9 +1,14 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { SelectAction } from '$lib/class/select-action';
     import Button from '$lib/components/button.svelte';
     import Content from '$lib/components/content.svelte';
     import DataTable from '$lib/components/data-table.svelte';
     import Titlebar from '$lib/components/titlebar.svelte';
+
+    function select(ev: any) {
+        goto('/admin/apis/details/' + ev.detail.id);
+    }
 </script>
 
 <Titlebar
@@ -22,5 +27,7 @@
             { name: 'description', label: 'Description' },
             { name: 'status', label: 'Status' },
         ]}
+        selectable={true}
+        on:select={select}
     />
 </Content>

@@ -20,7 +20,8 @@ func Load(svr *api.Server) {
 	g.Post(`/admin/page/update`).Secure().AddAction(admin.PageUpdate)
 
 	g.Post(`/admin/apis`).Secure().AddAction(admin.Apis)
-	g.Post(`/admin/apis/add`).Secure().AddAction(admin.ApiAdd)
+	g.Post(`/admin/apis/add`).Secure().AddAction(admin.ApisAdd)
+	g.Get(`/admin/apis/details`).Secure().AddAction(admin.ApisDetails)
 
 	svr.Post(`/login`).AddAction(Login)
 	svr.Get(`/logout`).AddAction(Logout)

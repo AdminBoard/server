@@ -20,7 +20,7 @@ func Apis(ctx api.Context) error {
 	return ctx.Write(rs)
 }
 
-func ApiAdd(ctx api.Context) error {
+func ApisAdd(ctx api.Context) error {
 	cn, e := ctx.Database()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
@@ -44,4 +44,31 @@ func ApiAdd(ctx api.Context) error {
 		return ctx.StatusBadRequest(`operation failed`)
 	}
 	return nil
+}
+
+func ApisDetails(ctx api.Context) error {
+	apiID := ctx.URL().Query().Get(`id`)
+	withQuery := ctx.URL().Query().Get(`with_query`)
+	if apiID == `` {
+		return ctx.StatusBadRequest(`invalid id`)
+	}
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+
+	result := dbm.Resultset{}
+
+	if withQuery == `1` {
+		stmt := dbm.Select(`id, query, params, property, sequence`).
+			From(db.Prefix(`api_query`)).Where(`api_id = ?`).OrderBy(`sequence`)
+
+		rs, e := cn.Select(cn.SQL(stmt), apiID)
+		if e != nil {
+			return ctx.StatusInternalServerError(e.Error())
+		}
+		result[`queries`] = rs
+	}
+
+	return ctx.Write(result)
 }
