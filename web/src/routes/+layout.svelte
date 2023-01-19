@@ -17,11 +17,12 @@
 	onMount(async () => {
 		load()
 			.then((resp) => {
-				switch (resp.status) {
-					case 1:
-						if (get(page).url.pathname != '/user/change_password')
-							goto('/user/change_password');
-						break;
+				const path = get(page).url.pathname;
+				if (resp.status == 1) {
+					if (path != '/user/change_password')
+						goto('/user/change_password');
+				} else {
+					if (path == '/user/login') goto('/dashboard');
 				}
 			})
 			.catch((e) => {
