@@ -23,7 +23,7 @@
         }
 
         &.nolabel input,
-        textarea {
+        .nolabel textarea {
             @apply rounded;
         }
 
