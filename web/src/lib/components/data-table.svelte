@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import api from '$lib/api';
-	import { onMount } from 'svelte';
+	import type { SelectAction } from '$lib/class/select-action';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { showPage } from './modal.svelte';
 	import Table from './table.svelte';
 
-	export let source: string = '';
+	export let source = '';
 	export let columns: any[] = [];
-	export let onSelect: any = null;
+	export let onSelect: SelectAction | null = null;
+	export let selectable = false;
 
 	let page = { offset: 0, count: 100 };
 
 	let rows: any[] = [];
+	const dispatch = createEventDispatcher();
 
 	onMount(() => {
 		if (source != '') {
@@ -23,15 +26,22 @@
 	});
 
 	function select(ev: any) {
+		if (onSelect == null && !selectable) return;
+
 		const detail = ev.detail;
+		if (onSelect == null) {
+			if (selectable) dispatch('select', ev.detail);
+			return;
+		}
+
+		let url = onSelect.url == null ? '' : onSelect.url;
 
 		switch (onSelect.action) {
 			case 'popup':
-				showPage('', onSelect.url, detail);
+				showPage('', url, detail);
 				break;
 			default:
 				if (onSelect.url != '') {
-					let url = onSelect.url;
 					for (const key in detail) {
 						url = url.replaceAll('%' + key + '%', detail[key]);
 					}
@@ -41,5 +51,10 @@
 	}
 </script>
 
-<Table {columns} {rows} selectable={onSelect != null} on:select={select} />
+<Table
+	{columns}
+	{rows}
+	selectable={onSelect != null || selectable}
+	on:select={select}
+/>
 <slot />
