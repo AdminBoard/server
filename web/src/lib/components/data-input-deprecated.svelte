@@ -40,7 +40,7 @@
 	});
 </script>
 
-<div class="content flex relative items-center w-fit {clazz}" {disabled}>
+<div class="content flex relative items-center w-fit {clazz}">
 	<input
 		class="pr-2 border"
 		style="width:{width}rem"
