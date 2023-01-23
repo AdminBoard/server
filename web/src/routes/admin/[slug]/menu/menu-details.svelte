@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
-	import InputSave from '$lib/components/data-input.svelte';
+	import DataInput from '$lib/components/data-input.svelte';
 	import notification from '$lib/components/notification/notification';
 	import { createEventDispatcher } from 'svelte';
 
@@ -77,7 +77,7 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="icon">Icon:</label>
-			<InputSave
+			<DataInput
 				name="icon"
 				bind:value={data.icon}
 				saveUrl="/admin/menu/update?id={data.id}"
@@ -88,7 +88,7 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Name:</label>
-			<InputSave
+			<DataInput
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
@@ -99,7 +99,7 @@
 		</div>
 		<div class="flex items-center space-x-2">
 			<label for="name">Page ID:</label>
-			<InputSave
+			<DataInput
 				name="page"
 				bind:value={data.page}
 				saveUrl="/admin/menu/update?id={data.id}"
@@ -119,7 +119,7 @@
 				<option value="1">Page 5</option>
 				<option value="1">Page 6</option>
 			</select>
-			<InputSave
+			<DataInput
 				name="name"
 				bind:value={data.name}
 				saveUrl="/admin/menu/update?id={data.id}"
