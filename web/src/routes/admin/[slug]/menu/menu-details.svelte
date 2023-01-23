@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
-	import InputSave from '$lib/components/input-save.svelte';
+	import InputSave from '$lib/components/data-input.svelte';
 	import notification from '$lib/components/notification/notification';
 	import { createEventDispatcher } from 'svelte';
 

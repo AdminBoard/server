@@ -3,7 +3,6 @@
   import { page } from '$app/stores';
   import api from '$lib/api';
   import DataInput from '$lib/components/data-input.svelte';
-  import InputSave from '$lib/components/input-save.svelte';
   import Menu from '$lib/components/menu.svelte';
   import notification from '$lib/components/notification/notification';
   import { onMount } from 'svelte';
@@ -148,7 +147,7 @@
         {/each}
         <div class="relative add-submenu">
           <div class:invisible={!addSubmenu.has(m.id)}>
-            <InputSave
+            <DataInput
               width="14"
               on:save={(ev) => {
                 saveMenu(m.id, ev, () => addSubmenu.delete(m.id));
