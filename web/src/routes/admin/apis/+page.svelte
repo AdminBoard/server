@@ -19,7 +19,7 @@
 >
 <Content>
     <DataTable
-        source="/admin/apis"
+        src="/admin/apis"
         columns={[
             { name: 'url', label: 'Path' },
             { name: 'method', label: 'Method' },

@@ -43,6 +43,5 @@
 >
 
 <Content>
-	<DataTable {onSelect} source="/admin/pages" {columns} />
-	<!-- <Table {columns} {rows} /> -->
+	<DataTable {onSelect} src="/admin/pages" {columns} />
 </Content>

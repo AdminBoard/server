@@ -6,7 +6,7 @@
 	import { showPage } from './modal.svelte';
 	import Table from './table.svelte';
 
-	export let source = '';
+	export let src = '';
 	export let columns: any[] = [];
 	export let onSelect: SelectAction | null = null;
 	export let selectable = false;
@@ -17,9 +17,9 @@
 	const dispatch = createEventDispatcher();
 
 	onMount(() => {
-		if (source != '') {
-			if (source.startsWith('/api/')) source = source.substring(4);
-			api.post(source, { page: page }).then((resp) => {
+		if (src != '') {
+			if (src.startsWith('/api/')) src = src.substring(4);
+			api.post(src, { page: page }).then((resp) => {
 				if (resp.status == 0) rows = resp.data;
 			});
 		}
