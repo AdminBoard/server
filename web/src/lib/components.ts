@@ -3,13 +3,13 @@ import DataTable from "./components/data-table.svelte"
 import Titlebar from "./components/titlebar.svelte"
 import Button from "./components/button.svelte"
 import Textfield from "./components/textfield.svelte"
-import InputSearch from "./components/input-search.svelte"
+import DataSearch from "./components/data-search.svelte"
 import Content from "./components/content.svelte"
 import Data from "./components/data.svelte"
 import Label from "./components/label.svelte"
 import Span from "./components/span.svelte"
 
-const components = { Titlebar, Content, DataTable, Button, Textfield, InputSearch, Row, Data, Label, Span }
+const components = { Titlebar, Content, DataTable, Button, Textfield, DataSearch, Row, Data, Label, Span }
 
 export default {
     get,

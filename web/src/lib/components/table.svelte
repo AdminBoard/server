@@ -36,6 +36,8 @@
 					{#if col.format == 'number'}
 						<td class="text-right">{formatNumber(row[col.name])}</td
 						>
+					{:else if col.format == 'right'}
+						<td class="text-right">{row[col.name]}</td>
 					{:else}
 						<td>{row[col.name]}</td>
 					{/if}

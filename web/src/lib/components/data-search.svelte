@@ -4,6 +4,7 @@
 
 	export let label = '';
 	export let value: any | null = null;
+	export let url = '';
 
 	let textValue = '';
 	let focus = false;
@@ -15,6 +16,7 @@
 	let focusIndex = 0;
 
 	function input() {
+		if (url.trim() == '') return;
 		items = [];
 		focusIndex = 0;
 		focus = false;
@@ -24,10 +26,10 @@
 
 		abortController = new AbortController();
 		process = setTimeout(() => {
-			getOverride(
-				'/api/deposit/add/search?name=' + textValue,
-				abortController?.signal
-			).then((resp) => {
+			let reqUrl = url;
+			if (reqUrl.indexOf('?') == -1) reqUrl += '?';
+			reqUrl += '&name=' + textValue;
+			getOverride(reqUrl, abortController?.signal).then((resp) => {
 				if (resp.status == 0) {
 					items = resp.data;
 					focus = true;
@@ -39,7 +41,7 @@
 
 	function selectItem(item: any) {
 		value = item;
-		textValue = value.name;
+		textValue = value.label;
 		focus = false;
 		items = [];
 	}
@@ -62,7 +64,7 @@
 	}
 </script>
 
-<div class="layout">
+<div class="data-search">
 	<Textfield
 		{label}
 		on:input={input}
@@ -73,11 +75,12 @@
 	{#if items.length > 0}
 		<ul class="list" class:invisible={!focus}>
 			{#each items as item, i}
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li
 					on:click|self={() => selectItem(item)}
 					class:focus={focusIndex == i}
 				>
-					{item.name} (Rp{item.balance.toLocaleString('id-ID')})
+					{item.label}
 				</li>
 			{/each}
 		</ul>

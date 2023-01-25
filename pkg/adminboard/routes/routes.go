@@ -22,6 +22,10 @@ func Load(svr *api.Server) {
 	g.Post(`/admin/apis`).Secure().AddAction(admin.Apis)
 	g.Post(`/admin/apis/add`).Secure().AddAction(admin.ApisAdd)
 	g.Get(`/admin/apis/details`).Secure().AddAction(admin.ApisDetails)
+	g.Post(`/admin/apis/query/add`).Secure().AddAction(admin.ApisQueryAdd)
+	g.Post(`/admin/apis/groups/add`).Secure().AddAction(admin.ApisGroupsAdd)
+
+	g.Get(`/admin/search/groups`).Secure().AddAction(admin.SearchGroups)
 
 	svr.Post(`/login`).AddAction(Login)
 	svr.Get(`/logout`).AddAction(Logout)

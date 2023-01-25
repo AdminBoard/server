@@ -71,8 +71,6 @@
 						payload[el.replaceAll('.', '_')] = getValue(data, el);
 					});
 				}
-				console.log(data);
-
 				itemStore.set(new LayoutNode('Loading'));
 
 				api.post(params.url, payload).then((resp) => {

@@ -17,10 +17,12 @@ function postData(url: string, body?: any): Promise<any> {
 
 function get(url: string): Promise<HttpResponse> {
     if (url.startsWith('/')) url = url.substring(1)
+    if (url.startsWith('api/')) url = url.substring(4)
     return getOverride('/api/' + url)
 }
 
 function post(url: string, body?: any): Promise<HttpResponse> {
     if (url.startsWith('/')) url = url.substring(1)
+    if (url.startsWith('api/')) url = url.substring(4)
     return postOverride('/api/' + url, body)
 }
