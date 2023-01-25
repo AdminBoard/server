@@ -6,12 +6,7 @@ import (
 )
 
 func Menu(ctx api.Context) error {
-	groupID := ctx.Session().GetInt(`groupID`)
-	if groupID == 0 {
-		return ctx.StatusForbidden(`invalid group id`)
-	}
-
-	menus, e := admin.GetMenu(true, groupID)
+	menus, e := admin.GetMenu(true, ctx.Session().GetInt(`groupID`))
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}

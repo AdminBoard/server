@@ -34,9 +34,9 @@ func Page(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
-	if rs.Int(`group_id`) == 0 {
-		return ctx.StatusForbidden(`access denied`)
-	}
+	// if rs.Int(`group_id`) == 0 {
+	// 	return ctx.StatusForbidden(`access denied`)
+	// }
 
 	if rs == nil {
 		return ctx.StatusNotFound(`page not found`)

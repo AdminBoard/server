@@ -8,6 +8,25 @@
 		itemStore.set(node);
 	}
 
+	export function popup(url: string, data?: any) {
+		if (data == null) dataStore.set({});
+		else dataStore.set(data);
+		const loading = new LayoutNode();
+		loading.tag = 'Loading';
+		itemStore.set(loading);
+
+		if (url != '') {
+			api.get('page?url=' + url).then((resp) => {
+				if (resp.status == 0) {
+					itemStore.set(new LayoutNode().parse(resp.data.layout));
+				} else {
+					itemStore.set({});
+					notification.show('Error', resp.message);
+				}
+			});
+		}
+	}
+
 	export function showPage(title: string, url: string, data?: any) {
 		if (data == null) dataStore.set({});
 		else dataStore.set(data);
@@ -56,16 +75,16 @@
 
 	function click(ev: any) {
 		const detail = ev.detail;
-		const params = detail.params;
+		// const params = detail.params;
 
 		switch (detail.action) {
 			case 'popup':
-				showPage(params.title, params.url);
+				popup(detail.actionUrl);
 				break;
 			case 'submit':
 				const payload: Record<string, any> = {};
-				if (params.fields != null) {
-					const split = params.fields.split(',');
+				if (detail.actionFields != null) {
+					const split = detail.actionFields.split(',');
 					split.forEach((el: string) => {
 						el = el.trim();
 						payload[el.replaceAll('.', '_')] = getValue(data, el);
@@ -73,16 +92,16 @@
 				}
 				itemStore.set(new LayoutNode('Loading'));
 
-				api.post(params.url, payload).then((resp) => {
+				api.post(detail.actionUrl, payload).then((resp) => {
 					itemStore.set({});
 					if (resp.status == 0) {
-						if (params.onSuccess != null) {
+						if (detail.onSuccess != null) {
 							notification.show(
 								'Sukses',
-								params.onSuccess.message,
+								detail.onSuccess.message,
 								5000
 							);
-							switch (params.onSuccess.action) {
+							switch (detail.onSuccess.action) {
 								case 'close':
 									itemStore.set({});
 									break;

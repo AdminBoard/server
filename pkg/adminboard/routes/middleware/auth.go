@@ -35,6 +35,10 @@ func AuthMiddleware(ctx api.Context) error {
 }
 
 func AuthAPI(ctx api.Context) error {
+	groupID := ctx.Session().GetInt(`groupID`)
+	if groupID == 0 {
+		return nil
+	}
 	path := ctx.URL().Path
 	if strings.HasPrefix(path, `/api`) {
 		path = path[4:]
@@ -43,7 +47,6 @@ func AuthAPI(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
-	groupID := ctx.Session().GetInt(`groupID`)
 
 	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`group_api ga`), `a.id = ga.api_id`).Where(`a.url = ?`, `ga.group_id = ?`)
 

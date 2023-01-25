@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
+	import { popup, showPage } from '$lib/components/modal.svelte';
+	import { LayoutNode } from '$lib/layout/layout-node';
+	import Layout from '$lib/layout/layout.svelte';
 	import { onDestroy } from 'svelte';
 	import AdminMenu from './menu/menu-page.svelte';
 	import AdminPages from './pages/pages-page.svelte';
@@ -9,6 +12,7 @@
 	let kind = '';
 
 	let component: any;
+	let layout: LayoutNode;
 
 	function refresh(newPath: string) {
 		error = '';
@@ -26,13 +30,25 @@
 						component = AdminPages;
 						break;
 					default:
-					// layoutNode = new LayoutNode().parse(resp.data.layout);
+						component = null;
+						layout = new LayoutNode().parse(resp.data.layout);
 				}
 			} else {
 				error = resp.message;
 			}
 		});
 	});
+
+	function click(ev: any) {
+		const detail = ev.detail;
+
+		// const params = detail.params;
+		switch (detail.action) {
+			case 'popup':
+				if (detail.actionUrl != null) popup(detail.actionUrl);
+				break;
+		}
+	}
 
 	onDestroy(unsubscribe);
 </script>
@@ -41,4 +57,8 @@
 	<h2>{error}</h2>
 {/if}
 
-<svelte:component this={component} />
+{#if component == null}
+	<Layout {layout} on:click={click} />
+{:else}
+	<svelte:component this={component} />
+{/if}
