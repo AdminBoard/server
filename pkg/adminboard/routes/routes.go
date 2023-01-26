@@ -28,6 +28,8 @@ func Load(svr *api.Server) {
 	g.PostAction(admin.Groups).Secure()
 	g.Post(`/admin/groups/add`).Secure().AddAction(admin.GroupsAdd)
 
+	g.PostAction(admin.Users).Secure()
+
 	g.Get(`/admin/search/groups`).Secure().AddAction(admin.SearchGroups)
 
 	svr.Post(`/login`).AddAction(Login)
