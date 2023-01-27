@@ -16,8 +16,17 @@ func AuthMiddleware(ctx api.Context) error {
 		return e
 	}
 
-	rs, e := db.CN().Get(db.QueryWithPrefix(`SELECT us.user_id, ug.group_id FROM {prefix}user_session us 
-		INNER JOIN {prefix}user_group ug ON us.user_id = ug.user_id WHERE us.id = ?`), sessionID)
+	stmt := dbm.Select(`us.user_id, ug.group_id`).
+		From(db.Prefix(`user_session us`)).
+		InnerJoin(db.Prefix(`user_group ug`), `us.user_id = ug.user_id`).
+		Where(`us.id = ?`)
+
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+
+	rs, e := cn.Get(cn.SQL(stmt), sessionID)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
