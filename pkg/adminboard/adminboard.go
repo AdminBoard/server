@@ -15,7 +15,7 @@ func init() {
 	svr = api.New()
 	svr.SetPrefixPath(`/api`)
 	svr.NormalizeFunc(true)
-	svr.AddMiddleware(middleware.AuthMiddleware).Secure()
+	svr.AddMiddleware(middleware.AuthStore).Secure()
 	svr.Group(`api`).AddMiddleware(middleware.AuthAPI).Secure()
 }
 

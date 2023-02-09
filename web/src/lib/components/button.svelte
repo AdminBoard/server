@@ -8,6 +8,7 @@
 	export let actionFields: string | null = null;
 	export let onSuccess: any = null;
 	export let disabled = false;
+	export let tooltip: string | null = null;
 
 	export { clazz as class };
 
@@ -23,4 +24,15 @@
 	}
 </script>
 
-<button class={clazz} on:click|self={click} {disabled}><slot /></button>
+<button class={clazz} data-tooltip={tooltip} on:click={click} {disabled}
+	><slot /></button
+>
+
+<style lang="scss">
+	button {
+		& > :global(*) {
+			@apply align-middle;
+			@apply inline-block;
+		}
+	}
+</style>

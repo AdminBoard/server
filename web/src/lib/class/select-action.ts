@@ -1,4 +1,4 @@
 export class SelectAction {
-    action?: string = ''; //popup
-    url?: string = '';
+    action?: string = ''; //popup, open
+    actionUrl?: string = '';
 }

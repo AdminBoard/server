@@ -9,7 +9,7 @@ import (
 )
 
 func SearchGroups(ctx api.Context) error {
-	name := ctx.URL().Query().Get(`name`)
+	name := ctx.Request().QueryParam(`name`)
 
 	name = strings.TrimSpace(name)
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import api from '$lib/api';
 	import { popup } from '$lib/components/modal.svelte';
@@ -6,7 +7,6 @@
 	import Layout from '$lib/layout/layout.svelte';
 	import { onDestroy } from 'svelte';
 	import AdminMenu from './menu/menu-page.svelte';
-	import AdminPages from './pages/pages-page.svelte';
 
 	let error = '';
 	let kind = '';
@@ -18,14 +18,11 @@
 		kind = '';
 		layout = null;
 		component = null;
-		api.get('page?url=/admin/' + data.params.slug).then((resp) => {
+		api.get('page?path=/admin/' + data.params.slug).then((resp) => {
 			if (resp.status == 0) {
 				switch (resp.data.layout) {
 					case 'admin.menu':
 						component = AdminMenu;
-						break;
-					case 'admin.pages':
-						component = AdminPages;
 						break;
 					default:
 						component = null;
@@ -37,16 +34,18 @@
 		});
 	});
 
-	function click(ev: any) {
-		const detail = ev.detail;
+	// function click(ev: any) {
+	// 	const detail = ev.detail;
 
-		// const params = detail.params;
-		switch (detail.action) {
-			case 'popup':
-				if (detail.actionUrl != null) popup(detail.actionUrl);
-				break;
-		}
-	}
+	// 	switch (detail.action) {
+	// 		case 'popup':
+	// 			if (detail.actionUrl != null) popup(detail.actionUrl);
+	// 			break;
+	// 		case 'open':
+	// 			if (detail.actionUrl != null) goto(detail.actionUrl);
+	// 			break;
+	// 	}
+	// }
 
 	onDestroy(unsubscribe);
 </script>
@@ -56,7 +55,7 @@
 {/if}
 
 {#if component == null}
-	<Layout {layout} on:click={click} />
+	<Layout {layout} />
 {:else}
 	<svelte:component this={component} />
 {/if}

@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	export let columns: any[] = [];
-	export let rows: any[] = [];
+	export let rows: any[] | null = null;
 
 	const dispatch = createEventDispatcher();
 
@@ -29,27 +29,31 @@
 			<th>{col.label}</th>
 		{/each}
 	</tr>
-	{#each rows as row}
-		<tr on:click={() => select(row)}>
-			{#each columns as col}
-				{#if row[col.name] != null}
-					{#if col.format == 'number'}
-						<td class="text-right">{formatNumber(row[col.name])}</td
-						>
-					{:else if col.format == 'right'}
-						<td class="text-right">{row[col.name]}</td>
+	{#if rows != null}
+		{#each rows as row}
+			<tr on:click={() => select(row)}>
+				{#each columns as col}
+					{#if row[col.name] != null}
+						{#if col.format == 'number'}
+							<td class="text-right"
+								>{formatNumber(row[col.name])}</td
+							>
+						{:else if col.format == 'right'}
+							<td class="text-right">{row[col.name]}</td>
+						{:else}
+							<td>{row[col.name]}</td>
+						{/if}
 					{:else}
-						<td>{row[col.name]}</td>
+						<td />
 					{/if}
-				{:else}
-					<td />
-				{/if}
-			{/each}
-		</tr>
-	{/each}
+				{/each}
+			</tr>
+		{/each}
+	{/if}
 </table>
-
-<div>&nbsp;</div>
+{#if rows != null && rows.length == 0}
+	<div class="w-full text-center pt-2">No Data</div>
+{/if}
 
 <style lang="scss">
 	@import '../../styles/colors';

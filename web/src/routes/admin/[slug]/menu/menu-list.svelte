@@ -7,6 +7,7 @@
   import notification from '$lib/components/notification/notification';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import MenuAdd from './menu-add.svelte';
 
   let menu: any[] = [];
   let startAddMenu = false;
@@ -92,7 +93,7 @@
 
 <div class="w-fit space-y-1">
   {#each menu as m, i}
-    <div class="relative border-2 rounded-lg flex flex-row py-1 items-center">
+    <!-- <div class="menu-group">
       <div class="w-full">
         <div class="flex relative w-full items-center">
           <Menu
@@ -208,33 +209,82 @@
           >
         </div>
       {/if}
-    </div>
-  {/each}
-  <div class="border-2 rounded-lg flex flex-row p-1 items-center">
-    <div class="relative">
-      <button
-        data-tooltip="Add menu"
-        class:invisible={startAddMenu}
-        class="cursor-pointer btn-menu tooltip-right flex space-x-2 text-sm"
-        on:click={() => (startAddMenu = true)}
-      >
-        <i class="material-icons text-sm">add</i>
-      </button>
-      <div class:invisible={!startAddMenu}>
-        <DataInput
-          allowCancel={true}
-          on:save={(ev) => {
-            saveMenu(0, ev, () => (startAddMenu = false));
-          }}
-          on:cancel={() => (startAddMenu = false)}
+    </div> -->
+    <div class="menu-group">
+      <Menu
+        class="w-full"
+        name={m.name}
+        icon={m.icon}
+        url="#id={m.id}"
+        selected={m.selected}
+      />
+      {#if m.status == 'draft'}
+        <i data-tooltip="draft" class="menu-badge material-icons ">edit</i>
+      {:else if m.status == 'suspended'}
+        <i data-tooltip="suspended" class="menu-badge material-icons ">pause</i>
+      {/if}
+
+      {#each m.children as sub}
+        <div class="relative">
+          <Menu
+            class="w-full"
+            url="#id={sub.id}"
+            name={sub.name}
+            submenu={true}
+            icon={sub.icon}
+            selected={sub.selected}
+          />
+          {#if sub.status == 'draft'}
+            <i data-tooltip="draft" class="menu-badge material-icons">edit</i>
+          {:else if sub.status == 'suspended'}
+            <i data-tooltip="suspended" class="menu-badge material-icons "
+              >pause</i
+            >
+          {/if}
+        </div>
+      {/each}
+
+      <div class="ml-4">
+        <MenuAdd
+          parentID={m.id}
+          on:success={() => refresh()}
+          tooltip="Add submenu"
         />
       </div>
+
+      {#if m.sequence > 0}
+        <div class="move-up" data-tooltip="Move up">
+          <button class="material-icons" on:click={() => moveMenu(i - 1, i)}
+            >arrow_right</button
+          >
+        </div>
+      {/if}
+      {#if i != menu.length - 1}
+        <div class="move-down" data-tooltip="Move down">
+          <button class="material-icons" on:click={() => moveMenu(i, i + 1)}
+            >arrow_right</button
+          >
+        </div>
+      {/if}
     </div>
+  {/each}
+
+  <div class="menu-group">
+    <MenuAdd parentID={0} on:success={() => refresh()} tooltip="Add menu" />
   </div>
 </div>
 
 <style lang="scss">
   @import '../../../../styles/colors';
+
+  .menu-group {
+    @apply relative border-2 rounded-lg flex-col p-1 items-center pl-8;
+    min-width: 18em;
+  }
+
+  .menu-badge {
+    @apply absolute tooltip-right cursor-default top-3 right-2 text-red-500 text-sm;
+  }
 
   .btn-sequence {
     background-color: transparent;
@@ -246,24 +296,50 @@
       color: $color-text;
     }
   }
-  .btn-menu {
-    background-color: transparent;
-    color: $color-gray;
-    // text-align: left;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    height: fit-content;
 
-    &.hidden {
-      display: none;
-    }
+  .move-up {
+    @apply top-2;
 
-    &:active {
-      background-color: transparentize($color-secondary, 0.5);
-      color: $color-text;
+    & button {
+      @apply -rotate-90;
     }
   }
+
+  .move-down {
+    @apply bottom-2;
+
+    & button {
+      @apply rotate-90;
+    }
+  }
+
+  .move-up,
+  .move-down {
+    @apply absolute w-fit left-2;
+    & button {
+      @apply p-0 transition-colors rounded-full;
+      background-color: transparent;
+      color: $color-primary;
+    }
+  }
+
+  // .btn-menu {
+  //   background-color: transparent;
+  //   // text-align: left;
+  //   position: absolute;
+  //   top: 50%;
+  //   transform: translateY(-50%);
+  //   height: fit-content;
+
+  //   &.hidden {
+  //     display: none;
+  //   }
+
+  //   &:active {
+  //     background-color: transparentize($color-secondary, 0.5);
+  //     color: $color-text;
+  //   }
+  // }
   .add-submenu {
     margin: 0.5rem 0.5rem 0.5rem 2rem;
   }

@@ -11,17 +11,33 @@
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
 
-    let name = '';
     let loading = true;
-    let data = { layout: '' };
+    let data = { title: '', layout: '' };
+    let path: string | null = '';
 
     let layout: LayoutNode;
 
-    onMount(() => {
-        const paths = get(page).url.pathname.split('/');
-        name = paths[paths.length - 1];
+    function preview() {
+        layout = new LayoutNode().parse(data.layout);
+    }
 
-        api.get('page?name=' + name)
+    function save() {
+        api.post('admin/page/update?path=' + path, { layout: data.layout })
+            .then((resp) => {
+                if (resp.status == 0)
+                    notification.show('Success', 'Layout saved');
+            })
+            .catch((e) => {
+                notification.show('Error', e);
+            });
+    }
+
+    onMount(() => {
+        const currPath = get(page).url.searchParams.get('path');
+        if (currPath == null) return;
+        path = currPath;
+
+        api.get('page?path=' + path)
             .then((resp) => {
                 if (resp.status == 0) {
                     if (resp.data.layout == null) resp.data.layout = '';
@@ -32,24 +48,12 @@
                 loading = false;
             });
     });
-
-    function preview() {
-        layout = new LayoutNode().parse(data.layout);
-    }
-
-    function save() {
-        api.post('admin/page/update?name=' + name, { layout: data.layout })
-            .then((resp) => {
-                if (resp.status == 0)
-                    notification.show('Success', 'Layout saved');
-            })
-            .catch((e) => {
-                notification.show('Error', e);
-            });
-    }
 </script>
 
-<Titlebar>Page: {name}</Titlebar>
+<Titlebar
+    >Page: {data?.title}
+    {#if path != ''} <div class="path">({path})</div>{/if}</Titlebar
+>
 
 <Content>
     <Textfield
@@ -57,7 +61,7 @@
         disabled={loading}
         class="h-full"
         bind:value={data.layout}
-        resizeable="vertical"
+        resizable="vertical"
     />
 
     <div>
@@ -67,15 +71,20 @@
 
     <div class="preview">
         <div>Preview:</div>
-        <Layout {layout} />
+        <Layout {layout} renderOnly />
     </div>
 </Content>
 
 <style lang="scss">
-    @import '../../../../../styles/colors';
+    @import '../../../../styles/colors';
 
     .preview {
         @apply m-2 p-2;
         border: 2px solid $color-border;
+    }
+
+    .path {
+        @apply text-sm ml-1;
+        color: transparentize($color-text, 0.3);
     }
 </style>

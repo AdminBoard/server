@@ -1,5 +1,10 @@
 <script lang="ts" context="module">
 	import api from '$lib/api';
+	import { LayoutNode } from '$lib/layout/layout-node';
+	import Layout from '$lib/layout/layout.svelte';
+	import { getValue } from '$lib/util';
+	import { writable, type Writable } from 'svelte/store';
+	import notification from './notification/notification';
 
 	let itemStore: Writable<any> = writable(null);
 	let dataStore: Writable<any> = writable(null);
@@ -11,12 +16,13 @@
 	export function popup(url: string, data?: any) {
 		if (data == null) dataStore.set({});
 		else dataStore.set(data);
+
 		const loading = new LayoutNode();
 		loading.tag = 'Loading';
 		itemStore.set(loading);
 
 		if (url != '') {
-			api.get('page?url=' + url).then((resp) => {
+			api.get('page?path=' + url).then((resp) => {
 				if (resp.status == 0) {
 					itemStore.set(new LayoutNode().parse(resp.data.layout));
 				} else {
@@ -35,7 +41,7 @@
 		itemStore.set(loading);
 
 		if (url != '') {
-			api.get('page?url=' + url).then((resp) => {
+			api.get('page?path=' + url).then((resp) => {
 				if (resp.status == 0) {
 					itemStore.set(new LayoutNode().parse(resp.data.layout));
 				} else {
@@ -48,12 +54,6 @@
 </script>
 
 <script lang="ts">
-	import { LayoutNode } from '$lib/layout/layout-node';
-	import Layout from '$lib/layout/layout.svelte';
-	import { getValue } from '$lib/util';
-	import { writable, type Writable } from 'svelte/store';
-	import notification from './notification/notification';
-
 	let items: LayoutNode[] = [];
 	let data: any = {};
 
@@ -75,42 +75,41 @@
 
 	function click(ev: any) {
 		const detail = ev.detail;
-		// const params = detail.params;
+		console.log(detail);
 
 		switch (detail.action) {
-			case 'popup':
-				popup(detail.actionUrl);
-				break;
 			case 'submit':
-				const payload: Record<string, any> = {};
-				if (detail.actionFields != null) {
-					const split = detail.actionFields.split(',');
-					split.forEach((el: string) => {
-						el = el.trim();
-						payload[el.replaceAll('.', '_')] = getValue(data, el);
-					});
-				}
-				itemStore.set(new LayoutNode('Loading'));
+				console.log('submit');
 
-				api.post(detail.actionUrl, payload).then((resp) => {
-					itemStore.set({});
-					if (resp.status == 0) {
-						if (detail.onSuccess != null) {
-							notification.show(
-								'Sukses',
-								detail.onSuccess.message,
-								5000
-							);
-							switch (detail.onSuccess.action) {
-								case 'close':
-									itemStore.set({});
-									break;
-							}
-						}
-					} else {
-						notification.show('Error', resp.message);
-					}
-				});
+				// 	const payload: Record<string, any> = {};
+				// 	if (detail.actionFields != null) {
+				// 		const split = detail.actionFields.split(',');
+				// 		split.forEach((el: string) => {
+				// 			el = el.trim();
+				// 			payload[el.replaceAll('.', '_')] = getValue(data, el);
+				// 		});
+				// 	}
+				// 	itemStore.set(new LayoutNode('Loading'));
+
+				// 	api.post(detail.actionUrl, payload).then((resp) => {
+				// 		itemStore.set({});
+				// 		if (resp.status == 0) {
+				// 			if (detail.onSuccess != null) {
+				// 				notification.show(
+				// 					'Sukses',
+				// 					detail.onSuccess.message,
+				// 					5000
+				// 				);
+				// 				switch (detail.onSuccess.action) {
+				// 					case 'close':
+				// 						itemStore.set({});
+				// 						break;
+				// 				}
+				// 			}
+				// 		} else {
+				// 			notification.show('Error', resp.message);
+				// 		}
+				// 	});
 				break;
 
 			case 'close':
@@ -118,6 +117,14 @@
 				break;
 			default:
 				console.log(ev);
+		}
+	}
+
+	function action(ev: any) {
+		switch (ev.detail.action) {
+			case 'close':
+				itemStore.set(null);
+				break;
 		}
 	}
 </script>
@@ -132,7 +139,12 @@
 				</div>
 			{:else}
 				<div class="content">
-					<Layout {data} {layout} on:click={click} />
+					<Layout
+						{data}
+						{layout}
+						on:click={click}
+						on:action={action}
+					/>
 				</div>
 			{/if}
 		</div>
@@ -145,10 +157,10 @@
 		background-color: transparentize(#000, 0.5);
 
 		& .content {
+			@apply absolute bg-gray-100 space-y-1 w-fit h-fit drop-shadow-xl rounded overflow-clip;
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			@apply absolute bg-gray-100 space-y-1 w-fit h-fit drop-shadow-xl rounded overflow-clip;
 			min-width: 400px;
 			overflow: visible;
 		}

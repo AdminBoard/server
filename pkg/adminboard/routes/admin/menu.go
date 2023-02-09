@@ -11,17 +11,16 @@ import (
 )
 
 func Menu(ctx api.Context) error {
-	query := ctx.URL().Query()
-	menuID := query.Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 
 	cn := db.CN()
 	if menuID != `` {
-		switch query.Get(`fetch`) {
+		switch ctx.Request().QueryParam(`fetch`) {
 		case `groups`:
 			return ctx.Write(nil)
 
 		default:
-			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.name AS page`).
+			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status`).
 				From(db.Prefix(`menu m`)).LeftJoin(db.Prefix(`page p`), `p.id = m.page_id`).Where(`m.id = ?`)
 
 			rsMenu, e := cn.Get(cn.SQL(stmt), menuID)
@@ -34,7 +33,7 @@ func Menu(ctx api.Context) error {
 			return ctx.Write(rsMenu)
 		}
 	} else {
-		stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.url`).From(db.Prefix(`menu m`)).
+		stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.path`).From(db.Prefix(`menu m`)).
 			LeftJoin(db.Prefix(`page p`), `m.page_id = p.id AND p.status = 'publish'`).
 			Where(`m.status IS NOT NULL`).OrderBy(`parent_id, sequence`)
 
@@ -51,7 +50,7 @@ func Menu(ctx api.Context) error {
 				`id`:       m.Int(`id`),
 				`name`:     m.String(`name`),
 				`icon`:     m.String(`icon`),
-				`url`:      m.String(`url`),
+				`path`:     m.String(`path`),
 				`sequence`: m.Int(`sequence`),
 				`children`: []json.Object{},
 				`status`:   m.String(`status`),
@@ -137,7 +136,7 @@ func MenuReorder(ctx api.Context) error {
 }
 
 func MenuUpdate(ctx api.Context) error {
-	menuID := ctx.URL().Query().Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 	if menuID == `` {
 		return ctx.StatusBadRequest(`invalid menu id`)
 	}
@@ -190,7 +189,7 @@ func MenuUpdate(ctx api.Context) error {
 }
 
 func MenuStatus(ctx api.Context) error {
-	menuID := ctx.URL().Query().Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 	if menuID == `` {
 		return ctx.StatusBadRequest(`invalid menu id`)
 	}

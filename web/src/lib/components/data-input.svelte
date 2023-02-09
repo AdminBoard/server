@@ -21,6 +21,10 @@
         oldValue = value;
     });
 
+    export function focus() {
+        textfield.focus();
+    }
+
     function save() {
         if (saveUrl == '') return;
         disabled = true;

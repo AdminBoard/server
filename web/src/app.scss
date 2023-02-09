@@ -12,6 +12,7 @@
 
     .textfield {
         @apply relative;
+        min-width: 8rem;
 
         &:not(.nolabel) {
             @apply pt-8;
@@ -108,7 +109,7 @@
         @apply absolute z-20 mt-1 p-2 w-max top-full left-1/2 rounded text-sm leading-4 invisible opacity-0 drop-shadow-md max-w-md -translate-x-1/2 transition duration-150 ease-out;
         font-family: 'Roboto', sans-serif;
         content: attr(data-tooltip);
-        background-color: transparentize(#000000, .2);
+        background-color: #000000;
         color: #fff;
     }
 
@@ -118,7 +119,7 @@
 
     [data-tooltip]:hover:before,
     [data-tooltip]:hover:after {
-        @apply visible opacity-80 float-right;
+        @apply visible opacity-90 float-right;
     }
 }
 

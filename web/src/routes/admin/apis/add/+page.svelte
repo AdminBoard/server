@@ -16,7 +16,7 @@
     function click() {
         api.postData('admin/apis/add', {
             method: method,
-            url: path,
+            path: path,
             is_secure: isSecure,
             description: description,
         })

@@ -14,16 +14,12 @@ func Page(ctx api.Context) error {
 	params := []any{}
 	params = append(params, groupID)
 
-	if name := ctx.Request().QueryParam(`name`); name != `` {
+	if path := ctx.Request().QueryParam(`path`); path != `` {
 		stmt = dbm.Select(`p.title, p.description, p.layout, gp.group_id`).From(db.Prefix(`page p`)).
-			LeftJoin(db.Prefix(`group_page gp`), `p.id = gp.page_id AND gp.group_id = ?`).Where(`p.name = ?`).Limit(1)
-		params = append(params, name)
-	} else if url := ctx.Request().QueryParam(`url`); url != `` {
-		stmt = dbm.Select(`p.title, p.description, p.layout, gp.group_id`).From(db.Prefix(`page p`)).
-			LeftJoin(db.Prefix(`group_page gp`), `p.id = gp.page_id AND gp.group_id = ?`).Where(`p.url = ?`).Limit(1)
-		params = append(params, url)
+			LeftJoin(db.Prefix(`group_page gp`), `p.id = gp.page_id AND gp.group_id = ?`).Where(`p.path = ?`).Limit(1)
+		params = append(params, path)
 	} else {
-		return ctx.StatusBadRequest(`invalid request, need parameter of name or url`)
+		return ctx.StatusBadRequest(`invalid request, need parameter of name or path`)
 	}
 
 	cn, e := ctx.Database()

@@ -21,7 +21,6 @@ export class LayoutNode {
             this.parseChildren(layout.children)
             if (layout.tagName != null) this.tag = layout.tagName
         }
-
         return this
     }
 

@@ -13,7 +13,7 @@
 
 	let page = { offset: 0, count: 100 };
 
-	let rows: any[] = [];
+	let rows: any[] | null = null;
 	const dispatch = createEventDispatcher();
 
 	onMount(() => {
@@ -34,16 +34,17 @@
 			return;
 		}
 
-		let url = onSelect.url == null ? '' : onSelect.url;
+		let url = onSelect.actionUrl == null ? '' : onSelect.actionUrl;
 
 		switch (onSelect.action) {
 			case 'popup':
 				showPage('', url, detail);
 				break;
+			case 'open':
 			default:
-				if (onSelect.url != '') {
+				if (onSelect.actionUrl != '') {
 					for (const key in detail) {
-						url = url.replaceAll('%' + key + '%', detail[key]);
+						url = url.replaceAll('[' + key + ']', detail[key]);
 					}
 					goto(url);
 				}

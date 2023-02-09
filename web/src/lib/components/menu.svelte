@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	export let icon = '';
 	export let submenu = false;
 	export let name = '';
@@ -6,6 +8,8 @@
 	export let url = '';
 
 	let clazz = '';
+
+	const dispatch = createEventDispatcher();
 
 	export { clazz as class };
 </script>
@@ -16,6 +20,9 @@
 	class:link={url != ''}
 	class:sub={submenu}
 	class="menu flex space-x-2 transition-colors items-center py-2 px-4 rounded-lg {clazz}"
+	on:click={() => {
+		dispatch('click');
+	}}
 >
 	{#if icon != ''}
 		<span class="material-icons">{icon}</span>

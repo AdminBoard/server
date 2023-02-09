@@ -10,7 +10,7 @@ import (
 func Pages(ctx api.Context) error {
 	cn := db.CN()
 
-	stmt := dbm.Select(`name, url, title, description, status`).From(db.Prefix(`page`))
+	stmt := dbm.Select(`path, title, description, status`).From(db.Prefix(`page`))
 
 	rs, e := cn.Select(cn.SQL(stmt))
 	if e != nil {
@@ -26,9 +26,9 @@ func PageAdd(ctx api.Context) error {
 	}
 	js := ctx.Request().JSON()
 
-	stmt := dbm.InsertInto(db.Prefix(`page`), `name, url, title, description, status`).Values(`?, ?, ?, ?, 'draft'`)
+	stmt := dbm.InsertInto(db.Prefix(`page`), `path, title, description, status`).Values(`?, ?, ?, 'draft'`)
 
-	_, e = cn.Exec(cn.SQL(stmt), js.GetString(`name`), js.GetString(`url`), js.GetString(`title`), js.GetString(`description`))
+	_, e = cn.Exec(cn.SQL(stmt), js.GetString(`path`), js.GetString(`title`), js.GetString(`description`))
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
@@ -37,14 +37,14 @@ func PageAdd(ctx api.Context) error {
 }
 
 func PageUpdate(ctx api.Context) error {
-	pageName := ctx.URL().Query().Get(`name`)
-	if pageName == `` {
-		return ctx.StatusBadRequest(`invalid page name`)
+	path := ctx.Request().QueryParam(`path`)
+	if path == `` {
+		return ctx.StatusBadRequest(`invalid parameter: path`)
 	}
 
 	s := dbm.Update(db.Prefix(`page`))
 	var stmtSet *stmt.UpdateFields
-	params := []interface{}{}
+	params := []any{}
 
 	js := ctx.Request().JSON()
 
@@ -56,13 +56,14 @@ func PageUpdate(ctx api.Context) error {
 	if len(params) == 0 {
 		return ctx.StatusBadRequest(`no update`)
 	}
-	stmtSet.Where(`name = ?`)
-	params = append(params, pageName)
+	stmtSet.Where(`path = ?`)
+	params = append(params, path)
 
 	cn, e := ctx.Database()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
+
 	_, e = cn.Exec(cn.SQL(s), params...)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())

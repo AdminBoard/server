@@ -7,14 +7,16 @@
 	export let placeholder: string = '';
 	export let disabled: boolean = false;
 	export let type = 'text';
-	export let resizeable = '';
+	export let resizable = '';
 	export let width: string = '';
 
 	export { clazz as class };
 	let clazz = '';
 
 	let format: any;
-	let textarea: HTMLTextAreaElement;
+
+	let inputComp: HTMLInputElement;
+	let textareaComp: HTMLTextAreaElement;
 
 	const dispatch = createEventDispatcher();
 
@@ -39,16 +41,21 @@
 	function keydown(ev: KeyboardEvent) {
 		if (ev.code == 'Tab') {
 			ev.preventDefault();
-			const start = textarea.selectionStart,
-				end = textarea.selectionEnd;
-			textarea.value =
-				textarea.value.substring(0, start) +
+			const start = textareaComp.selectionStart,
+				end = textareaComp.selectionEnd;
+			textareaComp.value =
+				textareaComp.value.substring(0, start) +
 				'\t' +
-				textarea.value.substring(end);
-			textarea.selectionStart = textarea.selectionEnd = start + 1;
+				textareaComp.value.substring(end);
+			textareaComp.selectionStart = textareaComp.selectionEnd = start + 1;
 		}
 	}
-	// $:let style = ;
+
+	export function focus() {
+		// setInterval(() => {
+		inputComp.focus();
+		// }, 100);
+	}
 </script>
 
 <div
@@ -70,19 +77,20 @@
 		/>
 	{:else if type == 'textarea'}
 		<textarea
-			bind:this={textarea}
+			bind:this={textareaComp}
 			name="input"
 			bind:value
 			{disabled}
 			on:keydown={keydown}
-			style="resize: {resizeable}"
+			style="resize: {resizable}"
 		/>
 	{:else}
 		<input
+			bind:this={inputComp}
+			bind:value
 			name="input"
 			type="text"
 			{disabled}
-			bind:value
 			on:input={input}
 			on:keyup={(ev) => dispatch('keyup', ev)}
 			on:focus={(ev) => dispatch('focus', ev)}

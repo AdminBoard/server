@@ -1,3 +1,4 @@
+import Column from "./components/column.svelte"
 import Row from "./components/row.svelte"
 import DataTable from "./components/data-table.svelte"
 import Titlebar from "./components/titlebar.svelte"
@@ -9,7 +10,7 @@ import Data from "./components/data.svelte"
 import Label from "./components/label.svelte"
 import Span from "./components/span.svelte"
 
-const components = { Titlebar, Content, DataTable, Button, Textfield, DataSearch, Row, Data, Label, Span }
+const components = { Titlebar, Content, DataTable, Button, Textfield, DataSearch, Column, Row, Data, Label, Span }
 
 export default {
     get,

@@ -83,10 +83,18 @@
 
 		<nav data-dev-hint="main navigation">
 			{#each menu as m}
-				<Menu icon={m.icon} url={m.url}>{m.name}</Menu>
+				<Menu
+					icon={m.icon}
+					url={m.path}
+					on:click={() => (showSidebar = false)}>{m.name}</Menu
+				>
 				{#if m.children != null}
 					{#each m.children as sub}
-						<Menu submenu={true} icon={sub.icon} url={sub.url}
+						<Menu
+							submenu={true}
+							icon={sub.icon}
+							url={sub.path}
+							on:click={() => (showSidebar = false)}
 							>{sub.name}</Menu
 						>
 					{/each}

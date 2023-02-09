@@ -1,6 +1,6 @@
 <script lang="ts">
 	import components from '$lib/components';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import type { LayoutNode } from './layout-node';
 
 	export let data: Record<string, any>;

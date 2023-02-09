@@ -57,7 +57,7 @@ func AuthAPI(ctx api.Context) error {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 
-	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`group_api ga`), `a.id = ga.api_id`).Where(`a.url = ?`, `ga.group_id = ?`)
+	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`group_api ga`), `a.id = ga.api_id`).Where(`a.path = ?`, `ga.group_id = ?`)
 
 	rs, e := cn.Select(cn.SQL(stmt), path, groupID)
 
@@ -70,4 +70,41 @@ func AuthAPI(ctx api.Context) error {
 
 	return nil
 
+}
+
+func AuthStore(ctx api.Context) error {
+	sessionID, e := routes.GetSessionID(ctx)
+	if e != nil {
+		return e
+	}
+
+	stmt := dbm.Select(`us.user_id, ug.group_id, su.store_id, su.branch_id`).
+		From(db.Prefix(`user_session us`)).
+		InnerJoin(db.Prefix(`user_group ug`), `us.user_id = ug.user_id`).
+		LeftJoin(`store_user su`, `su.user_id = us.user_Id`).
+		Where(`us.id = ?`)
+
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+
+	rs, e := cn.Get(cn.SQL(stmt), sessionID)
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+	if rs == nil {
+		return ctx.StatusUnauthorized(`session not found or user have no group`)
+	}
+
+	sess := ctx.Session()
+	sess.Put(`userID`, rs.Int(`user_id`))
+	sess.Put(`groupID`, rs.Int(`group_id`))
+	sess.Put(`storeID`, rs.Int(`store_id`))
+	sess.Put(`branchID`, rs.Int(`branch_id`))
+	sess.Put(`sessionID`, sessionID)
+
+	session := ctx.Request().Header().Cookie(`SESS`)
+	ctx.Response().Header().SetCookie(`SESS`, session, 15*time.Minute)
+	return nil
 }

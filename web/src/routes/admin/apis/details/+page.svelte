@@ -5,9 +5,10 @@
     import Button from '$lib/components/button.svelte';
     import Chips from '$lib/components/chips.svelte';
     import Content from '$lib/components/content.svelte';
-    import { showPage } from '$lib/components/modal.svelte';
+    import { popup } from '$lib/components/modal.svelte';
     import notification from '$lib/components/notification/notification';
     import Textfield from '$lib/components/textfield.svelte';
+    import Titlebar from '$lib/components/titlebar.svelte';
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
 
@@ -19,38 +20,47 @@
     let queries: any[] = [];
     let groups: Chip[] = [];
 
+    let method = '';
+    let path = '';
+
     onMount(() => {
-        apiID = get(page).params.slug;
-        queries = [];
-        api.get('/admin/apis/details?data=queries,groups&id=' + apiID).then(
-            (resp) => {
-                if (resp.status == 0) {
-                    if (resp.data.queries != null) {
-                        for (const q of resp.data.queries) {
-                            const split = <string[]>q.params.split(',');
-                            let query = q.query;
+        const searchParams = get(page).url.searchParams;
+        let val = searchParams.get('path');
+        path = val == null ? '' : val;
+        val = searchParams.get('method');
+        method = val == null ? '' : val;
 
-                            for (let s of split) {
-                                s = s.trim();
-                                query = query.replace(
-                                    '?',
-                                    '<span class="param">' + s + '</span>'
-                                );
-                            }
-                            queries = [
-                                ...queries,
-                                { query: query, property: q.property },
-                            ];
+        api.get(
+            '/admin/apis/details?data=queries,groups&path=' +
+                path +
+                '&method=' +
+                method
+        ).then((resp) => {
+            if (resp.status == 0) {
+                if (resp.data.queries != null) {
+                    for (const q of resp.data.queries) {
+                        const split = <string[]>q.params.split(',');
+                        let query = q.query;
+
+                        for (let s of split) {
+                            s = s.trim();
+                            query = query.replace(
+                                '?',
+                                '<span class="param">' + s + '</span>'
+                            );
                         }
-                    }
-                    console.log(resp.data);
-
-                    if (resp.data.groups != null) {
-                        groups = [...resp.data.groups, { label: '+' }];
+                        queries = [
+                            ...queries,
+                            { query: query, property: q.property, data: q },
+                        ];
                     }
                 }
+
+                if (resp.data.groups != null) {
+                    groups = [...resp.data.groups, { label: '+' }];
+                }
             }
-        );
+        });
     });
 
     function addQuery() {
@@ -74,7 +84,7 @@
         switch (chip.data) {
             case undefined:
             case null:
-                showPage('', '/admin/apis/details/add_group', {
+                popup('/admin/apis/add_group', {
                     api_id: apiID,
                 });
                 break;
@@ -82,6 +92,7 @@
     }
 </script>
 
+<Titlebar>API :: {method} {path}</Titlebar>
 <Content>
     <div class="flex flex-row space-x-2 items-center">
         <div>Allowed Groups:</div>
@@ -90,9 +101,13 @@
 
     <div class="queries">
         {#each queries as query}
-            <div class="flex flex-row">
+            <div
+                class="flex flex-row"
+                on:click={() => popup('/admin/page/query', query.data)}
+                on:keypress={() => {}}
+            >
                 <div>{query.property}</div>
-                <div class="query">{query.query}</div>
+                <div class="query">{@html query.query}</div>
             </div>
         {/each}
     </div>
@@ -111,7 +126,7 @@
 </Content>
 
 <style lang="scss">
-    @import '../../../../../styles/colors';
+    @import '../../../../styles/colors';
 
     .add {
         @apply p-4 rounded shadow;
@@ -119,9 +134,26 @@
     }
 
     .queries {
-        & div {
-            min-height: 2rem;
-            border: 1px solid #ccc;
+        @apply rounded cursor-pointer overflow-clip;
+        border: 1px solid $color-border;
+
+        &:hover {
+            border: 1px solid $color-secondary;
+            background-color: transparentize($color-secondary, 0.9);
+        }
+        & > div {
+            & > div {
+                @apply px-2 leading-6;
+                &:first-child {
+                    background-color: $color-border;
+                }
+            }
+        }
+
+        & :global(.param) {
+            @apply rounded p-1;
+            background-color: $color-secondary;
+            color: $color-text;
         }
     }
 </style>
