@@ -65,7 +65,7 @@
 </div>
 
 <style lang="scss">
-    @import '../../../styles/colors';
+    @import '../../../../styles/colors';
 
     .add-menu {
         @apply relative w-full items-center;

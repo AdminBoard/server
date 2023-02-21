@@ -76,7 +76,7 @@
 </Content>
 
 <style lang="scss">
-    @import '../../../../styles/colors';
+    @import '../../../../../styles/colors';
 
     .preview {
         @apply m-2 p-2;

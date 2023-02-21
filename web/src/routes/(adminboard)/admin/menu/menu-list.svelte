@@ -152,7 +152,7 @@
 </div>
 
 <style lang="scss">
-  @import '../../../styles/colors';
+  @import '../../../../styles/colors';
 
   .menu-list {
     @apply w-fit space-y-1;
