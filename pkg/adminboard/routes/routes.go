@@ -30,12 +30,22 @@ func Load(svr *api.Server) {
 		`POST /admin/apis/query/update`: admin.ApisQueryUpdate,
 		`POST /admin/apis/add_group`:    admin.ApisGroupsAdd,
 
-		`POST /admin/groups`:     admin.Groups,
-		`POST /admin/groups/add`: admin.GroupsAdd,
+		`POST /admin/groups`:                   admin.Groups,
+		`POST /admin/groups/add`:               admin.GroupsAdd,
+		`GET /admin/groups/details`:            admin.GroupsDetails,
+		`POST /admin/groups/add_permission`:    admin.GroupsAddPermissions,
+		`POST /admin/groups/remove_permission`: admin.GroupsRemovePermissions,
 
 		`POST /admin/users`: admin.Users,
 
 		`GET /admin/search/groups`: admin.SearchGroups,
+
+		`POST /admin/permissions`:             admin.Permissions,
+		`POST /admin/permissions/add`:         admin.PermissionsAdd,
+		`GET /admin/permissions/details`:      admin.PermissionsDetails,
+		`POST /admin/permissions/update`:      admin.PermissionsUpdate,
+		`POST /admin/permissions/add_item`:    admin.PermissionsAddItem,
+		`POST /admin/permissions/remove_item`: admin.PermissionsRemoveItem,
 
 		`POST /login`:  nil,
 		`GET /logout`:  nil,
@@ -70,7 +80,7 @@ func Load(svr *api.Server) {
 }
 
 func LoadFromDatabase(svr *api.Server) {
-	stmt := dbm.Select(`path, method, secure, query, params, property`).
+	stmt := dbm.Select(`path, method, secure, query, parameter, property`).
 		From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`api_query q`), `a.id = q.api_id`).OrderBy(`a.id, q.sequence`)
 	cn := db.CN()
 
@@ -89,8 +99,10 @@ func LoadFromDatabase(svr *api.Server) {
 			if route.Int(`secure`) == 1 {
 				r.Secure()
 			}
-			r.AddQueryAction(db.QueryWithPrefix(route.String(`query`)), route.String(`params`)).AssignTo(route.String(`property`))
+			r.AddQueryAction(db.QueryWithPrefix(route.String(`query`)), route.String(`parameter`)).AssignTo(route.String(`property`))
 		}
+	} else {
+		log.Println(e.Error())
 	}
 
 }

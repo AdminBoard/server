@@ -3,6 +3,8 @@
     import { onMount } from 'svelte';
     import Textfield from './textfield.svelte';
 
+    export let label = '';
+    export let placeholder = '';
     export let name = '';
     export let value = '';
     export let width = '16';
@@ -17,12 +19,22 @@
     let oldValue = '';
     let textfield: Textfield;
 
+    let isFocus = false;
+
     onMount(() => {
         oldValue = value;
     });
 
     export function focus() {
         textfield.focus();
+    }
+
+    function setFocus(focus: boolean) {
+        if (focus) isFocus = true;
+        else
+            setTimeout(() => {
+                isFocus = false;
+            }, 200);
     }
 
     function save() {
@@ -43,15 +55,26 @@
     }
 </script>
 
-<div class="input {clazz}">
-    <Textfield bind:this={textfield} bind:value class={clazz} {disabled} />
-    <div class="button" class:invisible={value == oldValue}>
-        <button
-            class="material-icons"
-            on:click={() => (value = oldValue)}
-            {disabled}>undo</button
+<div class="input {clazz}" style="width: {width}rem;">
+    <Textfield
+        bind:this={textfield}
+        bind:value
+        bind:label
+        bind:placeholder
+        on:input
+        on:keyup
+        on:focus={() => setFocus(true)}
+        on:blur={() => setFocus(false)}
+        class={clazz}
+        {disabled}
+    />
+    <div class="buttons" class:invisible={value == oldValue || !isFocus}>
+        <button class="clear" on:click={() => (value = oldValue)} {disabled}
+            ><i class="material-icons">undo</i></button
         >
-        <button class="material-icons" on:click={save} {disabled}>done</button>
+        <button class="done" on:click={save} {disabled}
+            ><i class="material-icons">done</i></button
+        >
     </div>
 </div>
 
@@ -59,16 +82,25 @@
     @import '../../styles/colors';
     .input {
         position: relative;
-        & .button {
-            @apply space-x-0 absolute;
-            top: 1px;
-            right: 1px;
-            bottom: 1px;
+        & .buttons {
+            @apply absolute bottom-0 right-1 h-full transition-all;
+
+            transform: translateX(100%);
+
+            &.invisible {
+                opacity: 0;
+            }
 
             & button {
-                @apply px-2 h-full;
-                background-color: $color-border;
-                color: $color-primary;
+                @apply h-full text-sm rounded-none;
+                border-top: 1px solid $color-secondary;
+                border-bottom: 1px solid $color-secondary;
+                background-color: $color-primary;
+                color: $color-text;
+                &.done {
+                    @apply rounded-r;
+                    margin: -0.25rem;
+                }
             }
         }
     }

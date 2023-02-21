@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import notification from '$lib/components/notification/notification';
 	import Textfield from '$lib/components/textfield.svelte';
 	import session from '$lib/session';
+	import { get } from 'svelte/store';
 
 	var username = '',
 		password = '';
@@ -12,7 +14,12 @@
 		disabled = true;
 		session
 			.login(username, password)
-			.then(() => goto('/dashboard'))
+			.then(() => {
+				const redirect = get(page).url.searchParams.get('redirect');
+				if (redirect == null || redirect.trim() == '')
+					goto('/dashboard');
+				else goto(redirect);
+			})
 			.catch((e) => notification.show('Login Error', e))
 			.finally(() => (disabled = false));
 	}

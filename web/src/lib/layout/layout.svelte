@@ -16,70 +16,124 @@
 	let dispatch = createEventDispatcher();
 	let disabled = false;
 
-	function action(act: any) {
-		console.log(act);
+	function assignUrlData(url: string, data: Record<string, any>): string {
+		if (url == null) return '';
+		let matches = [...url.matchAll(/\[([a-z0-9_]+)\]/gi)];
+		matches.forEach((match) => {
+			url = url.replaceAll(match[0], data[match[1]]);
+		});
+		return url;
+	}
 
-		if (renderOnly) return;
+	function processAction(act: any) {
+		if (act == null) return;
+
+		const url = assignUrlData(act.url, data);
+
 		switch (act.action) {
+			case 'goto':
 			case 'open':
-				goto(act.actionUrl);
+				goto(url);
 				break;
 			case 'popup':
-				popup(act.actionUrl);
+				popup(url, data);
+				break;
+			case 'close':
+				dispatch('close', act);
 				break;
 			case 'get':
+				dispatch('process');
 				disabled = true;
-				// api.get(act.actionUrl)
-				// 	.then((resp) => {
-				// 		if (resp.status == 0) {
-				// 			if (act.onSuccess != null) action(act.onSuccess);
-				// 		} else notification.show('Error', resp.message);
-				// 	})
-				// 	.catch((e) => notification.show('Error', e))
-				// 	.finally(() => (disabled = false));
+				api.get(url)
+					.then((resp) => {
+						console.log(resp);
+
+						if (resp.status == 0) processAction(act.onSuccess);
+						else dispatch('error', resp.message);
+					})
+					.finally(() => (disabled = false));
 				break;
 			case 'submit':
-				if (act.actionFields != null && act.actionUrl != null) {
-					disabled = true;
-					const split = act.actionFields.split(',');
-					const payload: Record<string, any> = {};
+				const payload: Record<string, any> = {};
+				if (act.fields != null) {
+					const split = act.fields.split(',');
 					split.forEach((el: string) => {
 						el = el.trim();
-						payload[el.replaceAll('.', '_')] = getValue(data, el);
+						payload[el.replaceAll('.', ' ')] = getValue(data, el);
 					});
-
-					let url = <string>act.actionUrl;
-
-					let matches = [...url.matchAll(/\[([a-z0-9_]+)\]/gi)];
-					matches.forEach((match) => {
-						url = url.replaceAll(match[0], data[match[1]]);
-					});
-					api.post(url, payload)
-						.then((resp) => {
-							if (resp.status == 0) {
-								disabled = false;
-								if (act.onSuccess != null) {
-									if (act.onSuccess.message != null)
-										notification.show(
-											'Success',
-											act.onSuccess.message
-										);
-									dispatch('action', {
-										action: act.onSuccess.action,
-									});
-								}
-							} else notification.show('Error', resp.message);
-						})
-						.catch((e) => notification.show('Error', e));
-				} else {
-					notification.show('Error', 'Incomplete action defined');
 				}
+				dispatch('process');
+				disabled = true;
 
+				api.post(url, payload)
+					.then((resp) => {
+						dispatch('finish');
+						if (resp.status == 0) {
+							if (act.onSuccess != null) {
+								processAction(act.onSuccess);
+								// 				// notification.show(
+								// 				// 	'Sukses',
+								// 				// 	detail.onSuccess.message,
+								// 				// 	5000
+								// 				// );
+								// 				// switch (detail.onSuccess.action) {
+								// 				// 	case 'close':
+								// 				// 		itemStore.set({});
+								// 				// 		break;
+								// 				// }
+							}
+						} else {
+							notification.error(resp.message);
+						}
+					})
+					.finally(() => (disabled = false));
 				break;
-
 			default:
 				dispatch('click', act);
 		}
+	}
+
+	function action(act: any) {
+		if (renderOnly) return;
+		processAction(act);
+		// switch (act.action) {
+		// 	case 'submit':
+		// 		if (act.actionFields != null && act.actionUrl != null) {
+		// 			disabled = true;
+		// 			const split = act.actionFields.split(',');
+		// 			const payload: Record<string, any> = {};
+		// 			split.forEach((el: string) => {
+		// 				el = el.trim();
+		// 				payload[el.replaceAll('.', '_')] = getValue(data, el);
+		// 			});
+
+		// 			api.post(assignUrlData(act.actionUrl, data), payload)
+		// 				.then((resp) => {
+		// 					if (resp.status == 0) {
+		// 						disabled = false;
+		// 						if (act.onSuccess != null) {
+		// 							action(act.onSuccess);
+		// 							if (act.onSuccess.message != null)
+		// 								notification.show(
+		// 									'Success',
+		// 									act.onSuccess.message
+		// 								);
+		// 							dispatch('action', {
+		// 								action: act.onSuccess.action,
+		// 							});
+		// 						}
+		// 					} else notification.error(resp.message);
+		// 				})
+		// 				.catch((e) => notification.error(e));
+		// 		} else {
+		// 			notification.error('Incomplete action defined');
+		// 		}
+
+		// 		break;
+
+		// 	default:
+		// 		dispatch('click', act);
+		// }
 	}
 </script>
 

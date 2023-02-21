@@ -9,15 +9,16 @@
 	import Modal from '$lib/components/modal.svelte';
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
+	import Dialog from '$lib/components/dialog.svelte';
 
 	export const ssr = false;
 
 	let loadSession = false;
 
 	onMount(async () => {
+		const path = get(page).url.pathname;
 		load()
 			.then((resp) => {
-				const path = get(page).url.pathname;
 				if (resp.status == 1) {
 					if (path != '/user/change_password')
 						goto('/user/change_password');
@@ -26,8 +27,8 @@
 				}
 			})
 			.catch((e) => {
-				goto('/user/login');
-				console.log('Error:' + e);
+				if (!path.startsWith('/user/login'))
+					goto('/user/login?redirect=' + path + get(page).url.search);
 			})
 			.finally(() => {
 				loadSession = true;
@@ -51,4 +52,5 @@
 {/if}
 
 <Modal />
+<Dialog />
 <Notification />

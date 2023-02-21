@@ -2,25 +2,42 @@
 	import { createEventDispatcher } from 'svelte';
 
 	export let columns: any[] = [];
-	export let rows: any[] | null = null;
+	export let data: any[] = [];
+	export let selectable = false;
+	export let multiple = false;
+
+	export let selections: any[] = [];
+	let selectionIndexes = new Map<number, boolean>();
 
 	const dispatch = createEventDispatcher();
-
-	export let selectable = false;
 
 	function formatNumber(number: number) {
 		return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 	}
 
-	function select(row: any) {
-		if (selectable == false) return;
-		dispatch('select', row);
+	function refreshSelection() {
+		let sels = [];
+		for (let key of selectionIndexes.keys()) {
+			if (data[key] === undefined) sels.push(data[key]);
+		}
+		selections = sels;
+		selectionIndexes = selectionIndexes;
+	}
+
+	function select(idx: number) {
+		if (!selectable && !multiple) return;
+		if (selectionIndexes.has(idx)) selectionIndexes.delete(idx);
+		else selectionIndexes.set(idx, true);
+		if (multiple) {
+			refreshSelection();
+			dispatch('select', selections);
+		} else dispatch('select', data[idx]);
 	}
 </script>
 
 <table
 	class="text-sm w-full max-w-full overflow-y-scroll"
-	class:selectable
+	class:selectable={selectable || multiple}
 	cellpadding="0"
 	cellspacing="0"
 >
@@ -29,29 +46,26 @@
 			<th>{col.label}</th>
 		{/each}
 	</tr>
-	{#if rows != null}
-		{#each rows as row}
-			<tr on:click={() => select(row)}>
-				{#each columns as col}
-					{#if row[col.name] != null}
-						{#if col.format == 'number'}
-							<td class="text-right"
-								>{formatNumber(row[col.name])}</td
-							>
-						{:else if col.format == 'right'}
-							<td class="text-right">{row[col.name]}</td>
-						{:else}
-							<td>{row[col.name]}</td>
-						{/if}
+	{#each data as row, i}
+		<tr on:click={() => select(i)} class:selected={selectionIndexes.get(i)}>
+			{#each columns as col}
+				{#if row[col.name] != null}
+					{#if col.format == 'number'}
+						<td class="text-right">{formatNumber(row[col.name])}</td
+						>
+					{:else if col.format == 'right'}
+						<td class="text-right">{row[col.name]}</td>
 					{:else}
-						<td />
+						<td>{row[col.name]}</td>
 					{/if}
-				{/each}
-			</tr>
-		{/each}
-	{/if}
+				{:else}
+					<td />
+				{/if}
+			{/each}
+		</tr>
+	{/each}
 </table>
-{#if rows != null && rows.length == 0}
+{#if data.length == 0}
 	<div class="w-full text-center pt-2">No Data</div>
 {/if}
 
@@ -70,6 +84,10 @@
 
 		&:last-of-type {
 			border-bottom: 1px solid $color-border;
+		}
+
+		&.selected {
+			background-color: darken($color-border, 10);
 		}
 	}
 	td,

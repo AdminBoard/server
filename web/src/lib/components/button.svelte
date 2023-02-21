@@ -3,24 +3,20 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let action: string | null = null;
-	export let actionUrl: string | null = null;
-	export let actionFields: string | null = null;
-	export let onSuccess: any = null;
+	// export let action: string | null = null;
+	// export let actionUrl: string | null = null;
+	// export let actionFields: string | null = null;
+	// export let onSuccess: any = null;
+
+	export let data: any = null;
 	export let disabled = false;
 	export let tooltip: string | null = null;
-
 	export { clazz as class };
 
 	let clazz = '';
 
 	function click() {
-		dispatch('click', {
-			action: action,
-			actionUrl: actionUrl,
-			actionFields: actionFields,
-			onSuccess: onSuccess,
-		});
+		dispatch('click', data);
 	}
 </script>
 

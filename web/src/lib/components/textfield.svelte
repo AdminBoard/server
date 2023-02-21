@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { text } from 'svelte/internal';
 
 	export let label: string = '';
 	export let value: string = '';
@@ -52,9 +51,7 @@
 	}
 
 	export function focus() {
-		// setInterval(() => {
 		inputComp.focus();
-		// }, 100);
 	}
 </script>
 
@@ -68,21 +65,23 @@
 		<input
 			name="input"
 			type="password"
-			{disabled}
 			bind:value
 			on:input={(ev) => dispatch('input', ev)}
 			on:keyup={(ev) => dispatch('keyup', ev)}
 			on:focus={(ev) => dispatch('focus', ev)}
 			on:blur={(ev) => dispatch('blur', ev)}
+			{placeholder}
+			{disabled}
 		/>
 	{:else if type == 'textarea'}
 		<textarea
 			bind:this={textareaComp}
 			name="input"
 			bind:value
-			{disabled}
 			on:keydown={keydown}
 			style="resize: {resizable}"
+			{placeholder}
+			{disabled}
 		/>
 	{:else}
 		<input
@@ -90,11 +89,12 @@
 			bind:value
 			name="input"
 			type="text"
-			{disabled}
 			on:input={input}
 			on:keyup={(ev) => dispatch('keyup', ev)}
 			on:focus={(ev) => dispatch('focus', ev)}
 			on:blur={(ev) => dispatch('blur', ev)}
+			{placeholder}
+			{disabled}
 		/>
 	{/if}
 	{#if label != ''}

@@ -8,12 +8,9 @@
 
 	function click() {
 		if (password1.length < 6) {
-			notification.show(
-				'Error',
-				'Password minimum length is 6 characters'
-			);
+			notification.error('Password minimum length is 6 characters');
 		} else if (password1 != password2) {
-			notification.show('Error', 'Password not matches');
+			notification.error('Password not matches');
 		} else {
 			disabled = true;
 

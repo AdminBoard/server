@@ -10,7 +10,7 @@ import (
 func Pages(ctx api.Context) error {
 	cn := db.CN()
 
-	stmt := dbm.Select(`path, title, description, status`).From(db.Prefix(`page`))
+	stmt := dbm.Select(`path, name, description, status`).From(db.Prefix(`page`))
 
 	rs, e := cn.Select(cn.SQL(stmt))
 	if e != nil {
@@ -26,9 +26,9 @@ func PageAdd(ctx api.Context) error {
 	}
 	js := ctx.Request().JSON()
 
-	stmt := dbm.InsertInto(db.Prefix(`page`), `path, title, description, status`).Values(`?, ?, ?, 'draft'`)
+	stmt := dbm.InsertInto(db.Prefix(`page`), `path, name, description, status`).Values(`?, ?, ?, 'draft'`)
 
-	_, e = cn.Exec(cn.SQL(stmt), js.GetString(`path`), js.GetString(`title`), js.GetString(`description`))
+	_, e = cn.Exec(cn.SQL(stmt), js.GetString(`path`), js.GetString(`name`), js.GetString(`description`))
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}

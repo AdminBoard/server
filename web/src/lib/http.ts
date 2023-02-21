@@ -25,7 +25,9 @@ export async function getOverride(url: string, signal?: AbortSignal): Promise<Ht
                         .then(resp => resolve(resp))
                         .catch(e => resolve({ status: 99, message: 'Invalid server response' }))
                 } else {
-                    resolve({ status: resp.status, message: resp.statusText })
+                    const status = resp.status
+                    const msg = resp.statusText + ': '
+                    resp.json().then(resp => resolve({ status: status, message: msg + resp.message }))
                 }
             }).catch(e => resolve({ status: 99, message: e }))
     })

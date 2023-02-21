@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import api from '$lib/api';
-	import { popup } from '$lib/components/modal.svelte';
 	import { LayoutNode } from '$lib/layout/layout-node';
 	import Layout from '$lib/layout/layout.svelte';
 	import { onDestroy } from 'svelte';
-	import AdminMenu from './menu/menu-page.svelte';
 
 	let error = '';
 	let kind = '';
@@ -22,7 +19,7 @@
 			if (resp.status == 0) {
 				switch (resp.data.layout) {
 					case 'admin.menu':
-						component = AdminMenu;
+						// component = AdminMenu;
 						break;
 					default:
 						component = null;
@@ -33,19 +30,6 @@
 			}
 		});
 	});
-
-	// function click(ev: any) {
-	// 	const detail = ev.detail;
-
-	// 	switch (detail.action) {
-	// 		case 'popup':
-	// 			if (detail.actionUrl != null) popup(detail.actionUrl);
-	// 			break;
-	// 		case 'open':
-	// 			if (detail.actionUrl != null) goto(detail.actionUrl);
-	// 			break;
-	// 	}
-	// }
 
 	onDestroy(unsubscribe);
 </script>

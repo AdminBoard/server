@@ -1,11 +1,11 @@
 package admin
 
 import (
-	"log"
 	"sort"
 	"strings"
 
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
+	"github.com/adminboard/adminboard/pkg/adminboard/routes/params"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 	"github.com/eqto/dbm/stmt"
@@ -98,7 +98,7 @@ func ApisDetails(ctx api.Context) error {
 	for _, str := range split {
 		switch strings.TrimSpace(str) {
 		case `queries`:
-			stmt := dbm.Select(`aq.id, aq.query, aq.params, aq.property, aq.sequence`).
+			stmt := dbm.Select(`aq.id, aq.query, aq.parameter, aq.property, aq.sequence`).
 				From(db.Prefix(`api_query aq`)).InnerJoin(db.Prefix(`api a`), `a.id = aq.api_id`).
 				Where(`a.path = ?`).And(`a.method = ?`).OrderBy(`sequence`)
 
@@ -125,12 +125,11 @@ func ApisDetails(ctx api.Context) error {
 }
 
 func ApisQueryAdd(ctx api.Context) error {
-	apiID := strings.TrimSpace(ctx.Request().QueryParam(`api_id`))
-	if apiID == `` {
-		return ctx.StatusBadRequest(`invalid parameter:api_id`)
+	js, e := params.Fetch(ctx, `method, path, query, parameter, property`, ``)
+	if e != nil {
+		return ctx.StatusBadRequest(e.Error())
 	}
 
-	js := ctx.Request().JSON()
 	query := strings.TrimSpace(js.GetString(`query`))
 	if query == `` {
 		return ctx.StatusBadRequest(`invalid parameter:query`)
@@ -140,27 +139,36 @@ func ApisQueryAdd(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
+	method, path := js.GetString(`method`), js.GetString(`path`)
 
-	stmt := dbm.Select(`COUNT(*) AS count`).From(db.Prefix(`api_query`)).Where(`api_id = ?`).GroupBy(`api_id`)
+	stmt := dbm.Select(`COUNT(*) AS count`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`api_query aq`), `a.id = aq.api_id`).
+		Where(`a.method = ?`, `a.path = ?`).GroupBy(`a.id`)
 
-	rs, e := cn.Get(cn.SQL(stmt), apiID)
+	rs, e := cn.Get(cn.SQL(stmt), method, path)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 	count := rs.Int(`count`)
 
-	stmtInsert := dbm.InsertInto(db.Prefix(`api_query`), `api_id, query, params, property, sequence`).Values(`?, ?, ?, ?, ?`)
-	res, e := cn.Exec(cn.SQL(stmtInsert), apiID, query, strings.TrimSpace(js.GetString(`params`)), strings.TrimSpace(js.GetString(`property`)), count)
+	stmtApi := dbm.Select(`id`).From(db.Prefix(`api`)).Where(`method = ?`, `path = ?`)
+	rs, e = cn.Get(cn.SQL(stmtApi), method, path)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
-	id, e := res.LastInsertID()
+	apiID := rs.Int(`id`)
+
+	stmtInsert := dbm.InsertInto(db.Prefix(`api_query`), `api_id, query, parameter, property, sequence`).Values(`?, ?, ?, ?, ?`)
+	res, e := cn.Exec(cn.SQL(stmtInsert), apiID, query, strings.TrimSpace(js.GetString(`parameter`)), strings.TrimSpace(js.GetString(`property`)), count)
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+	queryID, e := res.LastInsertID()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 
 	return ctx.Write(json.Object{
-		`id`:       id,
+		`id`:       queryID,
 		`sequence`: count,
 	})
 }
@@ -168,7 +176,6 @@ func ApisQueryAdd(ctx api.Context) error {
 func ApisGroupsAdd(ctx api.Context) error {
 	js := ctx.Request().JSON()
 	apiID := js.GetInt(`api_id`)
-	log.Println(apiID)
 	if apiID == 0 {
 		return ctx.StatusBadRequest(`invalid parameter:api_id`)
 	}

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import notification, { NotificationItem } from './notification';
+	import notification from './notification';
+	import type { NotificationItem } from './notification-item';
 
 	let items: NotificationItem[] = [];
 

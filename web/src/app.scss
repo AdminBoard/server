@@ -57,6 +57,10 @@
                     background-color: $color-hover;
                 }
             }
+
+            &:not(:focus) {
+                @apply cursor-pointer;
+            }
         }
 
         & label {

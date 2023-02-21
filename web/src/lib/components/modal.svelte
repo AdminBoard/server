@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
 	import api from '$lib/api';
+	import { get } from '$lib/http';
 	import { LayoutNode } from '$lib/layout/layout-node';
 	import Layout from '$lib/layout/layout.svelte';
-	import { getValue } from '$lib/util';
 	import { writable, type Writable } from 'svelte/store';
 	import notification from './notification/notification';
 
@@ -27,26 +27,7 @@
 					itemStore.set(new LayoutNode().parse(resp.data.layout));
 				} else {
 					itemStore.set({});
-					notification.show('Error', resp.message);
-				}
-			});
-		}
-	}
-
-	export function showPage(title: string, url: string, data?: any) {
-		if (data == null) dataStore.set({});
-		else dataStore.set(data);
-		const loading = new LayoutNode();
-		loading.tag = 'Loading';
-		itemStore.set(loading);
-
-		if (url != '') {
-			api.get('page?path=' + url).then((resp) => {
-				if (resp.status == 0) {
-					itemStore.set(new LayoutNode().parse(resp.data.layout));
-				} else {
-					itemStore.set({});
-					notification.show('Error', resp.message);
+					notification.error(resp.message);
 				}
 			});
 		}
@@ -79,7 +60,7 @@
 
 		switch (detail.action) {
 			case 'submit':
-				console.log('submit');
+				// console.log('submit');
 
 				// 	const payload: Record<string, any> = {};
 				// 	if (detail.actionFields != null) {
@@ -107,7 +88,7 @@
 				// 				}
 				// 			}
 				// 		} else {
-				// 			notification.show('Error', resp.message);
+				// 			notification.error(resp.message);
 				// 		}
 				// 	});
 				break;
@@ -120,12 +101,9 @@
 		}
 	}
 
-	function action(ev: any) {
-		switch (ev.detail.action) {
-			case 'close':
-				itemStore.set(null);
-				break;
-		}
+	function close(ev: any) {
+		console.log(ev.detail);
+		itemStore.set(null);
 	}
 </script>
 
@@ -143,7 +121,11 @@
 						{data}
 						{layout}
 						on:click={click}
-						on:action={action}
+						on:close={close}
+						on:process={() =>
+							itemStore.set(new LayoutNode('Loading'))}
+						on:finish={() => itemStore.set({})}
+						on:error={(ev) => notification.error(ev.detail)}
 					/>
 				</div>
 			{/if}

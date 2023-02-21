@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
+	"github.com/adminboard/adminboard/pkg/adminboard/session"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 	"github.com/eqto/go-json"
@@ -16,22 +17,25 @@ func Menu(ctx api.Context) error {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 
-	groupID := ctx.Session().GetInt(`groupID`)
-
-	stmtMenu := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, p.path`).
+	stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, p.path`).
 		From(db.Prefix(`menu m`)).
 		InnerJoin(db.Prefix(`page p`), `m.page_id = p.id`)
 
-	if groupID > 0 {
-		stmtMenu.InnerJoin(db.Prefix(`group_page gp`), `gp.page_id = p.id`).
+	token, e := session.Get(ctx)
+	params := []any{}
+
+	if token.GroupID > 1 {
+		stmt.InnerJoin(db.Prefix(`permission_item pi`), `p.id = pi.ref_id AND pi.ref_type = 'page'`).
+			InnerJoin(db.Prefix(`group_permission gp`), `pi.permission_id = gp.permission_id`).
 			Where(`p.status = 'publish'`).And(`gp.group_id = ?`).OrderBy(`sequence`)
-	} else {
-		stmtMenu.Where(`p.status = 'publish'`).OrderBy(`sequence`)
+		params = append(params, token.GroupID)
+	} else if token.IsValid {
+		stmt.Where(`p.status = 'publish'`).OrderBy(`sequence`)
 	}
 
 	rootMenus := map[int][]json.Object{}
 
-	rs, e := cn.Select(cn.SQL(stmtMenu))
+	rs, e := cn.Select(cn.SQL(stmt), params...)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}

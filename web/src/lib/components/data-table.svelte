@@ -1,61 +1,26 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import api from '$lib/api';
-	import type { SelectAction } from '$lib/class/select-action';
-	import { createEventDispatcher, onMount } from 'svelte';
-	import { showPage } from './modal.svelte';
+	import { onMount } from 'svelte';
 	import Table from './table.svelte';
 
 	export let src = '';
 	export let columns: any[] = [];
-	export let onSelect: SelectAction | null = null;
 	export let selectable = false;
+	export let multiple = false;
 
 	let page = { offset: 0, count: 100 };
 
-	let rows: any[] | null = null;
-	const dispatch = createEventDispatcher();
+	let data: any[] = [];
 
 	onMount(() => {
 		if (src != '') {
 			if (src.startsWith('/api/')) src = src.substring(4);
 			api.post(src, { page: page }).then((resp) => {
-				if (resp.status == 0) rows = resp.data;
+				if (resp.status == 0 && resp.data != null) data = resp.data;
 			});
 		}
 	});
-
-	function select(ev: any) {
-		if (onSelect == null && !selectable) return;
-
-		const detail = ev.detail;
-		if (onSelect == null) {
-			if (selectable) dispatch('select', ev.detail);
-			return;
-		}
-
-		let url = onSelect.actionUrl == null ? '' : onSelect.actionUrl;
-
-		switch (onSelect.action) {
-			case 'popup':
-				showPage('', url, detail);
-				break;
-			case 'open':
-			default:
-				if (onSelect.actionUrl != '') {
-					for (const key in detail) {
-						url = url.replaceAll('[' + key + ']', detail[key]);
-					}
-					goto(url);
-				}
-		}
-	}
 </script>
 
-<Table
-	{columns}
-	{rows}
-	selectable={onSelect != null || selectable}
-	on:select={select}
-/>
+<Table bind:columns bind:data bind:selectable on:select bind:multiple />
 <slot />
