@@ -3,11 +3,12 @@ module github.com/adminboard/adminboard
 go 1.18
 
 require (
-	github.com/eqto/api-server v0.15.8
+	github.com/eqto/api-server v0.15.10
 	github.com/eqto/config v0.3.1
-	github.com/eqto/dbm v0.15.2
+	github.com/eqto/dbm v0.17.0
 	github.com/eqto/go-json v0.4.1
 	github.com/eqto/service v0.1.6
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/speps/go-hashids v2.0.0+incompatible
 )
