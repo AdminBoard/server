@@ -15,6 +15,7 @@ type Token struct {
 	SessionID int `json:"s"`
 	UserID    int `json:"u"`
 	GroupID   int `json:"g"`
+	Expired   int `json:"e"`
 	IsValid   bool
 }
 
@@ -36,7 +37,7 @@ func Get(ctx api.Context) (*Token, error) {
 		return t.(*Token), nil
 	}
 
-	tokenStr := ctx.Request().Header().Cookie(``)
+	tokenStr := ctx.Request().Header().Cookie(`adminboard`)
 	if tokenStr == `` {
 		return t, errors.New(`invalid token`)
 	}

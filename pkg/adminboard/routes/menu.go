@@ -43,7 +43,6 @@ func Menu(ctx api.Context) error {
 	parentIDs := []string{}
 	for _, r := range rs {
 		parentID := r.Int(`parent_id`)
-		parentIDs = append(parentIDs, strconv.Itoa(parentID))
 		children := []json.Object{}
 		if m, ok := rootMenus[parentID]; ok {
 			children = m
@@ -58,29 +57,36 @@ func Menu(ctx api.Context) error {
 		})
 
 		rootMenus[parentID] = children
-	}
-
-	parents := strings.Join(parentIDs, `, `)
-
-	rs, e = cn.Select(db.QueryWithPrefix(`SELECT m.id, m.name, m.icon, p.path, m.sequence FROM {prefix}menu m 
-		LEFT JOIN {prefix}page p ON m.page_id = p.id WHERE m.id IN (` + parents + `) OR (m.parent_id = 0 AND p.path != '') ORDER BY m.sequence`))
-	if e != nil {
-		return ctx.StatusInternalServerError(e.Error())
+		if parentID > 0 {
+			parentIDs = append(parentIDs, strconv.Itoa(parentID))
+		} else {
+			parentIDs = append(parentIDs, r.String(`id`))
+		}
 	}
 
 	menus := []json.Object{}
 
-	for _, r := range rs {
-		id := r.Int(`id`)
-		menu := json.Object{
-			`id`:       id,
-			`name`:     r.String(`name`),
-			`icon`:     r.String(`icon`),
-			`path`:     r.String(`path`),
-			`sequence`: r.Int(`sequence`),
-			`children`: rootMenus[id],
+	if len(parentIDs) > 0 {
+		parents := strings.Join(parentIDs, `, `)
+		stmt = dbm.Select(`m.id, m.name, m.icon, m.sequence, p.path`).From(db.Prefix(`menu m`)).LeftJoin(db.Prefix(`page p`), `m.page_id = p.id`) //
+		stmt.Where(`m.id IN (` + parents + `)`).OrderBy(`m.sequence`)
+		rs, e = cn.Select(cn.SQL(stmt))
+		if e != nil {
+			return ctx.StatusInternalServerError(e.Error())
 		}
-		menus = append(menus, menu)
+
+		for _, r := range rs {
+			id := r.Int(`id`)
+			menu := json.Object{
+				`id`:       id,
+				`name`:     r.String(`name`),
+				`icon`:     r.String(`icon`),
+				`path`:     r.String(`path`),
+				`sequence`: r.Int(`sequence`),
+				`children`: rootMenus[id],
+			}
+			menus = append(menus, menu)
+		}
 	}
 
 	menus = append(menus, json.Object{

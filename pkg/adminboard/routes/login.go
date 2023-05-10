@@ -14,7 +14,8 @@ import (
 
 func Login(ctx api.Context) error {
 	js := ctx.Request().JSON()
-	stmt := dbm.Select(`id, group_id, secret`).From(db.Prefix(`user`)).Where(`username = ?`)
+	stmt := dbm.Select(`id, group_id, secret, TIMEDIFF(expired_at, NOW()) < 0 AS expired`).
+		From(db.Prefix(`user`)).Where(`username = ?`)
 	cn, e := ctx.Database()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
@@ -47,17 +48,23 @@ func Login(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(`invalid session: ` + e.Error())
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	claims := jwt.MapClaims{
 		`s`: sessionID,
 		`u`: userID,
 		`g`: rs.Int(`group_id`),
-	})
+	}
+	if rs.Int(`expired`) == 1 {
+		claims[`e`] = 1
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	tokenStr, e := token.SignedString([]byte(config.Get(`Security.secret`)))
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 
-	ctx.Response().Header().SetCookie(``, tokenStr, 30*time.Minute)
+	ctx.Response().Header().SetCookie(`adminboard`, tokenStr, 30*time.Minute)
+
 	return nil
 }

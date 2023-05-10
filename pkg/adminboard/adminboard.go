@@ -4,6 +4,7 @@ import (
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/adminboard/adminboard/pkg/adminboard/routes"
 	"github.com/adminboard/adminboard/pkg/adminboard/routes/middleware"
+	"github.com/adminboard/adminboard/pkg/adminboard/routes/routesdb"
 	"github.com/eqto/api-server"
 	"github.com/eqto/config"
 	"github.com/eqto/go-json"
@@ -44,7 +45,9 @@ func Run() error {
 
 	svr.SetDatabase(db.CN())
 
-	routes.LoadFromDatabase(svr)
+	routesdb.SetServer(svr)
+
+	routesdb.Load(0)
 	routes.Load(svr)
 
 	return svr.Serve(port)

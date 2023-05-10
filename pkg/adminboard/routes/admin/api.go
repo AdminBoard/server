@@ -6,6 +6,7 @@ import (
 
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/adminboard/adminboard/pkg/adminboard/routes/params"
+	"github.com/adminboard/adminboard/pkg/adminboard/routes/routesdb"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 	"github.com/eqto/dbm/stmt"
@@ -150,12 +151,13 @@ func ApisQueryAdd(ctx api.Context) error {
 	}
 	count := rs.Int(`count`)
 
-	stmtApi := dbm.Select(`id`).From(db.Prefix(`api`)).Where(`method = ?`, `path = ?`)
+	stmtApi := dbm.Select(`id, status`).From(db.Prefix(`api`)).Where(`method = ?`, `path = ?`)
 	rs, e = cn.Get(cn.SQL(stmtApi), method, path)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 	apiID := rs.Int(`id`)
+	status := rs.String(`status`)
 
 	stmtInsert := dbm.InsertInto(db.Prefix(`api_query`), `api_id, query, parameter, property, sequence`).Values(`?, ?, ?, ?, ?`)
 	res, e := cn.Exec(cn.SQL(stmtInsert), apiID, query, strings.TrimSpace(js.GetString(`parameter`)), strings.TrimSpace(js.GetString(`property`)), count)
@@ -165,6 +167,12 @@ func ApisQueryAdd(ctx api.Context) error {
 	queryID, e := res.LastInsertID()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
+	}
+
+	if status == `active` {
+		routesdb.Load(apiID)
+	} else {
+		routesdb.Unload(apiID)
 	}
 
 	return ctx.Write(json.Object{
@@ -232,6 +240,18 @@ func ApisQueryUpdate(ctx api.Context) error {
 	_, e = cn.Exec(cn.SQL(s), params...)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
+	}
+	stmt := dbm.Select(`a.id, a.status`).From(db.Prefix(`api_query aq`)).InnerJoin(db.Prefix(`api a`), `aq.api_id = a.id`).Where(`aq.id = ?`).Limit(1)
+	rs, e := cn.Get(cn.SQL(stmt), id)
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+	if rs != nil {
+		if rs.String(`status`) == `active` {
+			routesdb.Load(rs.Int(`api_id`))
+		} else {
+			routesdb.Unload(rs.Int(`api_id`))
+		}
 	}
 
 	return nil
