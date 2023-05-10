@@ -80,8 +80,8 @@
         disabled = true;
         if (query.trim() == '') return;
         api.postData('/admin/apis/query/add', {
-            path: path,
             method: method,
+            path: path,
             query: query,
             parameter: parameter,
             property: property,
@@ -126,7 +126,7 @@
 <QueryDialog bind:this={queryDialog} on:success={() => refresh('queries')} />
 
 <style lang="scss">
-    @import '../../../../styles/colors';
+    @import '../../../../../styles/colors';
 
     .add {
         @apply p-4 rounded shadow;
