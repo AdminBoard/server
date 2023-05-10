@@ -1,20 +1,16 @@
-package routes
+package user
 
 import (
-	"time"
-
 	"github.com/adminboard/adminboard/pkg/adminboard/crypto"
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/eqto/api-server"
-	"github.com/eqto/config"
 	"github.com/eqto/dbm"
 	"github.com/eqto/go-json"
-	"github.com/golang-jwt/jwt"
 )
 
 func Login(ctx api.Context) error {
 	js := ctx.Request().JSON()
-	stmt := dbm.Select(`id, group_id, secret, TIMEDIFF(expired_at, NOW()) < 0 AS expired`).
+	stmt := dbm.Select(`id, username, group_id, secret, TIMEDIFF(expired_at, NOW()) < 0 AS expired`).
 		From(db.Prefix(`user`)).Where(`username = ?`)
 	cn, e := ctx.Database()
 	if e != nil {
@@ -48,23 +44,16 @@ func Login(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(`invalid session: ` + e.Error())
 	}
-	claims := jwt.MapClaims{
-		`s`: sessionID,
-		`u`: userID,
-		`g`: rs.Int(`group_id`),
-	}
-	if rs.Int(`expired`) == 1 {
-		claims[`e`] = 1
+
+	expired := rs.Int(`expired`) == 1
+
+	if e := setCookie(ctx, sessionID, userID, rs.Int(`group_id`), rs.String(`username`), expired); e != nil {
+		return ctx.StatusUnauthorized(e.Error())
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	tokenStr, e := token.SignedString([]byte(config.Get(`Security.secret`)))
-	if e != nil {
-		return ctx.StatusInternalServerError(e.Error())
+	if expired {
+		return ctx.Error(1, `password expired`)
 	}
-
-	ctx.Response().Header().SetCookie(`adminboard`, tokenStr, 30*time.Minute)
 
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/adminboard/adminboard/pkg/adminboard/routes/admin"
+	"github.com/adminboard/adminboard/pkg/adminboard/routes/user"
 	"github.com/eqto/api-server"
 )
 
@@ -68,9 +69,10 @@ func Load(svr *api.Server) {
 			log.Println(fmt.Sprintf(`invalid method %s`, path))
 		}
 	}
-	svr.Post(`/login`).AddAction(Login)
-	svr.Get(`/logout`).AddAction(Logout)
-	svr.Get(`/session`).AddAction(Session)
+	svr.PostAction(user.Login)
+	svr.GetAction(user.Logout)
+	svr.GetAction(user.Session)
+	svr.PostAction(user.ChangePassword)
 
 	svr.Get(`/menu`).Secure().AddAction(Menu)
 	svr.Get(`/page`).Secure().AddAction(Page)

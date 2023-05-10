@@ -14,9 +14,10 @@
 		disabled = true;
 		session
 			.login(username, password)
-			.then(() => {
+			.then((valid) => {
 				const redirect = get(page).url.searchParams.get('redirect');
-				if (redirect == null || redirect.trim() == '')
+				if (!valid) goto('/user/change_password');
+				else if (redirect == null || redirect.trim() == '')
 					goto('/dashboard');
 				else goto(redirect);
 			})

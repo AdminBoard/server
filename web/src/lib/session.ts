@@ -4,20 +4,23 @@ import api from "./api"
 import md5 from "./md5"
 
 let menu = writable([])
+let username = ''
 export let loggedIn = writable(false)
 
 export default {
+	username: username,
 	load: load,
 	login: login,
 	logout: logout,
-	menu: menu,
-	loggedIn: loggedIn
+	changePassword: changePassword,
+	menu: menu
 }
 
-export function load(): Promise<any> {
+function load(): Promise<any> {
 	return new Promise<any>((resolve, reject) => {
-		api.get('session').then(resp => {
+		api.get('/user/session').then(resp => {
 			if (resp.status < 100) {
+				username = resp.data?.username
 				if (resp.status == 0) loggedIn.set(true)
 				refreshMenu()
 				resolve(resp)
@@ -32,19 +35,21 @@ export function load(): Promise<any> {
 	})
 }
 
-export function login(username: string, password: string): Promise<boolean> {
+function login(u: string, p: string): Promise<boolean> {
 	const time = Math.floor(new Date().getTime() / 1000)
+	u = u.trim().toLowerCase()
+	username = u
 
-	const secret = md5(username + password)
+	const secret = md5(u + p)
 
 	return new Promise<boolean>((resolve, reject) => {
-		api.post('login', { username: username, signature: md5(secret + time), time: time })
+		api.post('/user/login', { username: u, signature: md5(secret + time), time: time })
 			.then(resp => {
 				if (resp.status == 0) {
 					loggedIn.set(true)
 					refreshMenu()
 					resolve(true)
-				}
+				} else if (resp.status == 1) resolve(false)
 				else reject(resp.message)
 			}).catch(e => {
 				reject(e)
@@ -54,10 +59,23 @@ export function login(username: string, password: string): Promise<boolean> {
 
 function logout(): Promise<null> {
 	return new Promise<null>(_ => {
-		api.get('logout').finally(() => {
+		api.get('/user/logout').finally(() => {
 			loggedIn.set(false)
 			menu.set([])
 			goto('/user/login')
+		})
+	})
+}
+
+function changePassword(password: string, confirm: string): Promise<boolean> {
+	return new Promise<boolean>((resolve, reject) => {
+		api.post('/user/change_password', { password: password, confirm: confirm }).then(resp => {
+			if (resp.status == 0) {
+				loggedIn.set(true)
+				refreshMenu()
+				resolve(true)
+			}
+			else reject(resp.message)
 		})
 	})
 }

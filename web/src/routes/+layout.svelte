@@ -3,7 +3,7 @@
 
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { load, loggedIn } from '$lib/session';
+	import session, { loggedIn } from '$lib/session';
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import Notification from '$lib/components/notification/notification.svelte';
 	import Modal from '$lib/components/modal.svelte';
@@ -17,7 +17,8 @@
 
 	onMount(async () => {
 		const path = get(page).url.pathname;
-		load()
+		session
+			.load()
 			.then((resp) => {
 				if (resp.status == 1) {
 					if (path != '/user/change_password')

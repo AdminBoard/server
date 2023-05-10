@@ -1,21 +1,29 @@
 <script>
 	import notification from '$lib/components/notification/notification';
 	import Textfield from '$lib/components/textfield.svelte';
+	import session from '$lib/session';
+	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let disabled = false;
-	let password1 = '',
-		password2 = '';
+	let password = '',
+		confirm = '';
 
 	function click() {
-		if (password1.length < 6) {
-			notification.error('Password minimum length is 6 characters');
-		} else if (password1 != password2) {
-			notification.error('Password not matches');
-		} else {
-			disabled = true;
-
-			disabled = false;
-		}
+		disabled = true;
+		session
+			.changePassword(password, confirm)
+			.then((ok) => {
+				if (ok) {
+					const redirect = get(page).url.searchParams.get('redirect');
+					if (redirect == null || redirect.trim() == '')
+						goto('/dashboard');
+					else goto(redirect);
+				}
+			})
+			.catch((e) => notification.show('Error', e))
+			.finally(() => (disabled = false));
 	}
 </script>
 
@@ -28,13 +36,13 @@
 			<Textfield
 				label="New Password"
 				type="password"
-				bind:value={password1}
+				bind:value={password}
 				{disabled}
 			/>
 			<Textfield
-				label="Repeat Password"
+				label="Confirm Password"
 				type="password"
-				bind:value={password2}
+				bind:value={confirm}
 				{disabled}
 			/>
 			<div>

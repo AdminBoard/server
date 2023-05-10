@@ -12,10 +12,11 @@ import (
 )
 
 type Token struct {
-	SessionID int `json:"s"`
-	UserID    int `json:"u"`
-	GroupID   int `json:"g"`
-	Expired   int `json:"e"`
+	SessionID int    `json:"sid"`
+	UserID    int    `json:"uid"`
+	Username  string `json:"uname"`
+	GroupID   int    `json:"gid"`
+	Expired   int    `json:"expired"`
 	IsValid   bool
 }
 
