@@ -17,8 +17,9 @@
 
 	function refreshSelection() {
 		let sels = [];
+
 		for (let key of selectionIndexes.keys()) {
-			if (data[key] === undefined) sels.push(data[key]);
+			if (data[key] != null) sels.push(data[key]);
 		}
 		selections = sels;
 		selectionIndexes = selectionIndexes;

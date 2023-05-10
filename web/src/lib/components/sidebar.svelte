@@ -131,4 +131,11 @@
 	#menu-open:checked ~ * #menu-close-icon {
 		display: block;
 	}
+
+	@media print {
+		header,
+		aside {
+			display: none;
+		}
+	}
 </style>

@@ -32,7 +32,7 @@
 				if (!isNaN(int)) {
 					value = int.toLocaleString('id-ID');
 				}
-			}, 1000);
+			}, 500);
 		}
 		dispatch('input', { value: value, data: ev.data });
 	}
