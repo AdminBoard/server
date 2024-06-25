@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"github.com/adminboard/adminboard/pkg/adminboard/db"
-	"github.com/adminboard/adminboard/pkg/adminboard/session"
+	"github.com/adminboard/server/pkg/adminboard/db"
+	"github.com/adminboard/server/pkg/adminboard/session"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 )

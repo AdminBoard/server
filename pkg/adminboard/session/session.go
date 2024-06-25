@@ -8,6 +8,7 @@ import (
 	"github.com/eqto/api-server"
 	"github.com/eqto/config"
 	"github.com/eqto/go-json"
+
 	"github.com/golang-jwt/jwt"
 )
 

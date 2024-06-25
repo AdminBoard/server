@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/adminboard/adminboard/pkg/adminboard"
+	"github.com/adminboard/server/pkg/adminboard"
 	"github.com/eqto/service"
 )
 

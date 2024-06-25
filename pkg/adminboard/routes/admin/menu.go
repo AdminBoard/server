@@ -3,7 +3,7 @@ package admin
 import (
 	"fmt"
 
-	"github.com/adminboard/adminboard/pkg/adminboard/db"
+	"github.com/adminboard/server/pkg/adminboard/db"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 	"github.com/eqto/dbm/stmt"

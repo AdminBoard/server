@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/adminboard/adminboard/pkg/adminboard/exception"
+	"github.com/adminboard/server/pkg/adminboard/exception"
 	"github.com/eqto/config"
 	"github.com/eqto/dbm"
 	_ "github.com/eqto/dbm/driver/mysql"

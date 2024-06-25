@@ -1,10 +1,9 @@
 package adminboard
 
 import (
-	"github.com/adminboard/adminboard/pkg/adminboard/db"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/middleware"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/routesdb"
+	"github.com/adminboard/server/pkg/adminboard/db"
+	"github.com/adminboard/server/pkg/adminboard/routes"
+	"github.com/adminboard/server/pkg/adminboard/routes/middleware"
 	"github.com/eqto/api-server"
 	"github.com/eqto/config"
 	"github.com/eqto/go-json"
@@ -25,7 +24,7 @@ var svr *api.Server
 
 func init() {
 	svr = api.New()
-	svr.SetPrefixPath(`/api`)
+	// svr.SetPrefixPath(`/api`)
 	svr.NormalizeFunc(true)
 	svr.AddMiddleware(middleware.AuthMiddleware).Secure()
 	svr.Group(`api`).AddMiddleware(middleware.AuthAPI).Secure()
@@ -44,15 +43,12 @@ func Run() error {
 	}
 
 	svr.SetDatabase(db.CN())
-<<<<<<< HEAD
 	svr.NormalizeFunc(true)
 	// svr.SetPrefixPath(`/api`)
-=======
->>>>>>> fbdf0e351c3c341a6a34219e7c70d3441d8c8d23
 
-	routesdb.SetServer(svr)
+	// routesdb.SetServer(svr)
 
-	routesdb.Load(0)
+	// routesdb.Load(0)
 	routes.Load(svr)
 
 	return svr.Serve(port)

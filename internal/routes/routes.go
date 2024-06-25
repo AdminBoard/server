@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/adminboard/adminboard/internal/routes/deposit"
+	"github.com/adminboard/server/internal/routes/deposit"
 	"github.com/eqto/api-server"
 )
 

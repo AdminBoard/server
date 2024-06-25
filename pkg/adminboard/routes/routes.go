@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/admin"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/user"
+	"github.com/adminboard/server/pkg/adminboard/routes/admin"
+	"github.com/adminboard/server/pkg/adminboard/routes/user"
 	"github.com/eqto/api-server"
 )
 

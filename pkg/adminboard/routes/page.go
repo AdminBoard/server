@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/adminboard/adminboard/pkg/adminboard/db"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/params"
-	"github.com/adminboard/adminboard/pkg/adminboard/session"
+	"github.com/adminboard/server/pkg/adminboard/db"
+	"github.com/adminboard/server/pkg/adminboard/routes/params"
+	"github.com/adminboard/server/pkg/adminboard/session"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 )

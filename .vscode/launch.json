@@ -7,7 +7,7 @@
             "request": "launch",
             "mode": "auto",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/cmd/adminboard/main.go",
+            "program": "${workspaceFolder}/cmd/adminboard/adminboard.go",
             "args": [
                 "run",
                 "--port=8080"

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/adminboard/adminboard/pkg/adminboard/session"
+	"github.com/adminboard/server/pkg/adminboard/session"
 	"github.com/eqto/api-server"
 )
 

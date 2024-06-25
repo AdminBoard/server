@@ -1,4 +1,4 @@
-module github.com/adminboard/adminboard
+module github.com/adminboard/server
 
 go 1.18
 
@@ -17,6 +17,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/dgrr/websocket v0.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/radovskyb/watcher v1.0.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

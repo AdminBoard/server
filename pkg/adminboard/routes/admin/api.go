@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/adminboard/adminboard/pkg/adminboard/db"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/params"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes/routesdb"
+	"github.com/adminboard/server/pkg/adminboard/db"
+	"github.com/adminboard/server/pkg/adminboard/routes/params"
+	"github.com/adminboard/server/pkg/adminboard/routes/routesdb"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 	"github.com/eqto/dbm/stmt"
