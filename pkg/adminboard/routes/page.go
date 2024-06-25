@@ -2,31 +2,49 @@ package routes
 
 import (
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
+	"github.com/adminboard/adminboard/pkg/adminboard/routes/params"
+	"github.com/adminboard/adminboard/pkg/adminboard/session"
 	"github.com/eqto/api-server"
+	"github.com/eqto/dbm"
 )
 
 func Page(ctx api.Context) error {
-	url := ctx.Request().QueryParam(`url`)
-	if url == `` {
-		return ctx.StatusBadRequest(`invalid page url:` + url)
+	js, e := params.FetchQuery(ctx, `path`, ``)
+	if e != nil {
+		return ctx.StatusBadRequest(e.Error())
 	}
-	groupID := ctx.Session().GetInt(`groupID`)
+	params := []any{}
 
-	rs, e := db.CN().Get(db.QueryWithPrefix(`SELECT p.title, p.description, p.layout, gp.group_id FROM {prefix}page p
-		LEFT JOIN {prefix}group_page gp ON p.id = gp.page_id AND gp.group_id = ? WHERE url = ?`), groupID, url)
+	token, _ := session.Get(ctx)
+	if !token.IsValid {
+		return ctx.StatusBadRequest(`invalid token`)
+	}
+	stmt := dbm.Select(`p.name, p.description, p.layout`).From(db.Prefix(`page p`))
+	path := js.GetString(`path`)
+	if token.GroupID != 1 {
+		stmt.InnerJoin(db.Prefix(`permission_item pi`), `p.id = pi.ref_id AND pi.ref_type = 'page'`).
+			InnerJoin(db.Prefix(`group_permission gp`), `pi.permission_id = gp.permission_id`).
+			Where(`gp.group_id = ?`, `p.path = ?`)
+		params = append(params, token.GroupID, path)
+	} else {
+		stmt.Where(`p.path = ?`)
+		params = append(params, path)
+	}
+	stmt.Limit(1)
+
+	cn, e := ctx.Database()
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
-	if rs.Int(`group_id`) == 0 {
-		return ctx.StatusForbidden(`access denied`)
+
+	rs, e := cn.Get(cn.SQL(stmt), params...)
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
 	}
 
 	if rs == nil {
 		return ctx.StatusNotFound(`page not found`)
 	}
-	// js, _ := json.ParseString(rs.String(`layout`))
-	// rs[`layout`] = js
-	// delete(rs, `group_id`)
 
 	return ctx.Write(rs)
 }

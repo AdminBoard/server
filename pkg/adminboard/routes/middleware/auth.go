@@ -2,39 +2,47 @@ package middleware
 
 import (
 	"strings"
-	"time"
 
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
-	"github.com/adminboard/adminboard/pkg/adminboard/routes"
+	"github.com/adminboard/adminboard/pkg/adminboard/session"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
 )
 
 func AuthMiddleware(ctx api.Context) error {
-	sessionID, e := routes.GetSessionID(ctx)
+	token, e := session.Get(ctx)
 	if e != nil {
-		return e
+		return ctx.StatusUnauthorized(e.Error())
 	}
 
-	rs, e := db.CN().Get(db.QueryWithPrefix(`SELECT us.user_id, ug.group_id FROM {prefix}user_session us 
-		INNER JOIN {prefix}user_group ug ON us.user_id = ug.user_id WHERE us.id = ?`), sessionID)
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+
+	stmt := dbm.Select(`us.user_id, u.group_id`).
+		From(db.Prefix(`user_session us`)).
+		InnerJoin(db.Prefix(`user u`), `us.user_id = u.id`).
+		Where(`us.id = ?`)
+
+	rs, e := cn.Get(cn.SQL(stmt), token.SessionID)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 	if rs == nil {
 		return ctx.StatusUnauthorized(`session not found or user have no group`)
 	}
-
-	ctx.Session().Put(`userID`, rs.Int(`user_id`))
-	ctx.Session().Put(`groupID`, rs.Int(`group_id`))
-	ctx.Session().Put(`sessionID`, sessionID)
-
-	session := ctx.Request().Header().Cookie(`SESS`)
-	ctx.Response().Header().SetCookie(`SESS`, session, 15*time.Minute)
 	return nil
 }
 
 func AuthAPI(ctx api.Context) error {
+	token, e := session.Get(ctx)
+	if e != nil {
+		return ctx.StatusUnauthorized(e.Error())
+	}
+	if token.GroupID == 1 {
+		return nil
+	}
 	path := ctx.URL().Path
 	if strings.HasPrefix(path, `/api`) {
 		path = path[4:]
@@ -43,18 +51,20 @@ func AuthAPI(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
-	groupID := ctx.Session().GetInt(`groupID`)
 
-	stmt := dbm.Select(`*`).From(db.Prefix(`api a`)).InnerJoin(db.Prefix(`page_api pa`), `a.id = pa.api_id`).
-		InnerJoin(db.Prefix(`group_page_api gpa`), `pa.id = gpa.page_api_id`).Where(`a.url = ?`, `gpa.group_id = ?`)
+	stmt := dbm.Select(`id, status`).From(db.Prefix(`api a`)).
+		InnerJoin(db.Prefix(`permission_item pi`), `a.id = pi.ref_id AND pi.ref_type = 'api'`).
+		InnerJoin(db.Prefix(`group_permission gp`), `pi.permission_id = gp.permission_id`).
+		Where(`a.path = ?`, `gp.group_id = ?`)
 
-	rs, e := cn.Select(cn.SQL(stmt), path, groupID)
-
+	rs, e := cn.Get(cn.SQL(stmt), path, token.GroupID)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
 	}
 	if rs == nil {
-		return ctx.StatusForbidden(`Forbidden: you don't have permission to this resource`)
+		return ctx.StatusForbidden(`you don't have permission to this resource`)
+	} else if rs.String(`status`) != `active` {
+		return ctx.StatusBadRequest(`invalid api status`)
 	}
 
 	return nil

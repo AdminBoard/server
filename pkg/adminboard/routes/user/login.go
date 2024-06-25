@@ -1,18 +1,22 @@
-package routes
+package user
 
 import (
-	"time"
-
 	"github.com/adminboard/adminboard/pkg/adminboard/crypto"
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/eqto/api-server"
-	"github.com/eqto/config"
+	"github.com/eqto/dbm"
 	"github.com/eqto/go-json"
 )
 
 func Login(ctx api.Context) error {
 	js := ctx.Request().JSON()
-	rs, e := db.CN().Get(db.QueryWithPrefix(`SELECT * FROM {prefix}user WHERE username = ?`), js.GetString(`username`))
+	stmt := dbm.Select(`id, username, group_id, secret, TIMEDIFF(expired_at, NOW()) < 0 AS expired`).
+		From(db.Prefix(`user`)).Where(`username = ?`)
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
+	}
+	rs, e := cn.Get(cn.SQL(stmt), js.GetString(`username`))
 	if e != nil {
 		return ctx.StatusForbidden(e.Error())
 	}
@@ -30,7 +34,9 @@ func Login(ctx api.Context) error {
 		`Host`:       header.Get(`Host`),
 		`User-Agent`: header.Get(`User-Agent`),
 	}
-	res, e := db.CN().Exec(db.QueryWithPrefix(`INSERT INTO {prefix}user_session(user_id, client) VALUES(?, ?)`), rs.Int(`id`), client.ToString())
+	userID := rs.Int(`id`)
+	stmtInsert := dbm.InsertInto(db.Prefix(`user_session`), `user_id, client`).Values(`?, ?`)
+	res, e := db.CN().Exec(cn.SQL(stmtInsert), userID, client.ToString())
 	if e != nil {
 		return ctx.StatusInternalServerError(`invalid session: ` + e.Error())
 	}
@@ -38,8 +44,16 @@ func Login(ctx api.Context) error {
 	if e != nil {
 		return ctx.StatusInternalServerError(`invalid session: ` + e.Error())
 	}
-	id := crypto.EncodeIDWithSalt(sessionID, config.Get(`Security.salt`))
 
-	ctx.Response().Header().SetCookie(`SESS`, id, 15*time.Minute)
+	expired := rs.Int(`expired`) == 1
+
+	if e := setCookie(ctx, sessionID, userID, rs.Int(`group_id`), rs.String(`username`), expired); e != nil {
+		return ctx.StatusUnauthorized(e.Error())
+	}
+
+	if expired {
+		return ctx.Error(1, `password expired`)
+	}
+
 	return nil
 }

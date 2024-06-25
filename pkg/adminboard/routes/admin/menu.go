@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"fmt"
+
 	"github.com/adminboard/adminboard/pkg/adminboard/db"
 	"github.com/eqto/api-server"
 	"github.com/eqto/dbm"
@@ -9,17 +11,17 @@ import (
 )
 
 func Menu(ctx api.Context) error {
-	query := ctx.URL().Query()
-	menuID := query.Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 
 	cn := db.CN()
 	if menuID != `` {
-		switch query.Get(`fetch`) {
+		switch ctx.Request().QueryParam(`fetch`) {
 		case `groups`:
 			return ctx.Write(nil)
 
 		default:
-			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status`).From(db.Prefix(`menu m`)).Where(`id = ?`)
+			stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.path`).
+				From(db.Prefix(`menu m`)).LeftJoin(db.Prefix(`page p`), `p.id = m.page_id`).Where(`m.id = ?`)
 
 			rsMenu, e := cn.Get(cn.SQL(stmt), menuID)
 			if e != nil {
@@ -31,7 +33,7 @@ func Menu(ctx api.Context) error {
 			return ctx.Write(rsMenu)
 		}
 	} else {
-		stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.url`).From(db.Prefix(`menu m`)).
+		stmt := dbm.Select(`m.id, m.parent_id, m.name, m.icon, m.sequence, m.status, p.path`).From(db.Prefix(`menu m`)).
 			LeftJoin(db.Prefix(`page p`), `m.page_id = p.id AND p.status = 'publish'`).
 			Where(`m.status IS NOT NULL`).OrderBy(`parent_id, sequence`)
 
@@ -48,7 +50,7 @@ func Menu(ctx api.Context) error {
 				`id`:       m.Int(`id`),
 				`name`:     m.String(`name`),
 				`icon`:     m.String(`icon`),
-				`url`:      m.String(`url`),
+				`path`:     m.String(`path`),
 				`sequence`: m.Int(`sequence`),
 				`children`: []json.Object{},
 				`status`:   m.String(`status`),
@@ -134,7 +136,7 @@ func MenuReorder(ctx api.Context) error {
 }
 
 func MenuUpdate(ctx api.Context) error {
-	menuID := ctx.URL().Query().Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 	if menuID == `` {
 		return ctx.StatusBadRequest(`invalid menu id`)
 	}
@@ -144,22 +146,40 @@ func MenuUpdate(ctx api.Context) error {
 	params := []interface{}{}
 
 	js := ctx.Request().JSON()
+
 	if js.Has(`status`) {
 		return ctx.StatusForbidden(`status not changed`)
 	}
-	for key := range js {
-		stmtSet = s.Set(key + ` = ?`)
-		params = append(params, js.GetString(key))
+
+	cn, e := ctx.Database()
+	if e != nil {
+		return ctx.StatusInternalServerError(e.Error())
 	}
+
+	if page := js.GetString(`page`); page != `` {
+		stmt := dbm.Select(`id`).From(db.Prefix(`page`)).Where(`path = ?`)
+
+		rs, e := cn.Get(cn.SQL(stmt), page)
+		if e != nil {
+			return ctx.StatusInternalServerError(e.Error())
+		}
+		if rs == nil {
+			return ctx.StatusNotFound(fmt.Sprintf(`Page %s not found`, page))
+		}
+		stmtSet = s.Set(`page_id = ?`)
+		params = append(params, rs.Int(`id`))
+	} else {
+		for key := range js {
+			stmtSet = s.Set(key + ` = ?`)
+			params = append(params, js.GetString(key))
+		}
+	}
+
 	if len(params) == 0 {
 		return ctx.StatusBadRequest(`no update`)
 	}
 	stmtSet.Where(`id = ?`)
 	params = append(params, menuID)
-	cn, e := ctx.Database()
-	if e != nil {
-		return ctx.StatusInternalServerError(e.Error())
-	}
 	_, e = cn.Exec(cn.SQL(s), params...)
 	if e != nil {
 		return ctx.StatusInternalServerError(e.Error())
@@ -169,7 +189,7 @@ func MenuUpdate(ctx api.Context) error {
 }
 
 func MenuStatus(ctx api.Context) error {
-	menuID := ctx.URL().Query().Get(`id`)
+	menuID := ctx.Request().QueryParam(`id`)
 	if menuID == `` {
 		return ctx.StatusBadRequest(`invalid menu id`)
 	}
