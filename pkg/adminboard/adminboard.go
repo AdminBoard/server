@@ -26,7 +26,7 @@ func Run() error {
 	svr = api.New()
 	svr.SetDatabase(db.CN())
 	svr.NormalizeFunc(true)
-	svr.SetPrefixPath(`/api`)
+	// svr.SetPrefixPath(`/api`)
 
 	svr.AddMiddleware(middleware.AuthMiddleware).Secure()
 	svr.Group(`api`).AddMiddleware(middleware.AuthAPI).Secure()
